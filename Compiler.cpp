@@ -14,6 +14,7 @@ void Compiler::compile() const
 	fin>>gpp_path;
 	fin.close();
 
+	//커맨드에 쏠 명령어 구성
 	wstring cmd = gpp_path + L"\\g++.exe";
 	for (auto& filename : filenames)
 		(cmd += ' ') += filename;
