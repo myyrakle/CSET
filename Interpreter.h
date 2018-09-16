@@ -9,57 +9,59 @@ enum class InterpretOption
 	//...
 };
 
-bool is_whitespace(wchar_t c)
-{
-	if (c == ' ' || c == '\n' || c == '\t')
-		return true;
-	else
-		return false;
-}
-
 class Interpreter
 {
 public:
 	void add_file(wstring&& filename); //변환할 파일 추가
 	void interpret(); //변환 수행.
+	void push_default_header();
 	void finish(); //다 끝내고 뽑아내기
 
 private: //인터프리트 내부 작업들
 	bool read_line(); //현재 파일에서 한줄 읽어 (bool)fin 리턴
 	void line_to_words(); 
-	bool read_line_if_words_empty();
-	//void chars_to_wstring(); //deprecated
-	//void remove_comment(); //deprecated
-
+	void read_line_if_empty();
+	void print_error(wstring_view) const;
+private:
 	void interpret_global();
 	void interpret_local();
 	void interpret_function();
-	void interpret_function_main(const wstring& func_signature);
 	void interpret_class();
-	void interpret_parameter();
 	void interpret_variable(); //const, mut, literal
-	void interpret_variable_static();
-	void interpret_class();
-	
+private:
 	void interpret_array();
+	void interpret_vector();
+
+public:
+	void set_original_filepath(const wstring&);
+private:
+	wstring _original_filepath;
 
 private:
-	string temp_name = "__temp__name";
-	array<string, 30> unuse_cpp_keywords
-	{""};
-
+	wstring temp_name = L"__temp__name";
+	
+private:
 	vector<wstring> filenames; //파일
+	wstring_view current_filename;
 	wifstream fin;
 
+private:
 	wstring line;
 	int line_num=0;
 	queue<wstring> words;
 
+private:
 	int unclosed_bracket=0;
+
+private: //main 함수 처리용
+	bool in_main_func = false;
+	wstring cmdline_arg_name;
 
 private: //result
 	wstring prototypes; //위에 모아놓을 전방선언들
 	wstring bodys; //
+
+
 
 
 public: //아직 사용하지 않음

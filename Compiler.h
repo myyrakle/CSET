@@ -11,13 +11,20 @@ class Compiler
 {
 
 public:
+	//void add_header(wstring&& filename);
 	void add_file(wstring&& filename);
 	void add_option(CompileOption&& option);
 	const vector<CompileOption> get_options() const;
 	void compile() const;
 
+public:
+	void set_original_filepath(const wstring&);
+private:
+	wstring _original_filepath;
+
 private:
 	vector<wstring> filenames;
+	//array<wstring> headers;
 	//vector<CompileOption> options
 
 public: //구현하지 않음
