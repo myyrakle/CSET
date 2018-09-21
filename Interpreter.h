@@ -19,8 +19,11 @@ public:
 
 private: //인터프리트 내부 작업들
 	bool read_line(); //현재 파일에서 한줄 읽어 (bool)fin 리턴
-	void line_to_words(); 
 	void read_line_if_empty();
+	void line_to_words(); 
+	void convert_typename(std::wstring&);
+	void convert_unused_keywords(std::wstring&);
+private:
 	void print_error(wstring_view) const;
 private:
 	void interpret_global();

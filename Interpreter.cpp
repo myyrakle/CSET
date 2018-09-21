@@ -136,6 +136,7 @@ void Interpreter::line_to_words()
 		{
 			if (!word.empty())
 			{
+				this->convert_typename(word);
 				words.push(word);
 				word.clear();
 			}
@@ -148,6 +149,7 @@ void Interpreter::line_to_words()
 		{
 			if (word != L"")
 			{
+				this->convert_typename(word);
 				this->words.push(word);
 				word.clear();
 			}
@@ -159,6 +161,28 @@ void Interpreter::line_to_words()
 			continue;
 		}
 	}
+}
+
+void Interpreter::convert_typename(std::wstring& word) //타입 키워드를 실제 구현 클래스명으로 변경
+{
+	auto to_upper = [](wchar_t& c) { if (c >= 'a' && c <= 'z') c -= 32; };
+
+	if (word == keywords::OBJECT || 
+		word == keywords::CHAR || keywords::STRING ||
+		word == keywords::BOOL || keywords::BYTE ||
+		word == keywords::INT || 
+		word ==keywords::FLOAT || word == keywords::DOUBLE)
+		to_upper(word[0]);
+	else
+		return;
+}
+
+//쓰지 않을 예약어 식별자로 쓸수 있게 수정
+void Interpreter::convert_unused_keywords(std::wstring & word) 
+{
+	if (word == keywords::unuse::AUTO || word == keywords::unuse::DELETE_ ||
+		word == keywords::unuse::GOTO || word == keywords::unuse::LONG)
+		word.insert(0, this->temp_name);
 }
 
 void Interpreter::read_line_if_empty()
