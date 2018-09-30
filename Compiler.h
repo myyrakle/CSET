@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 //변환된 C++코드를 받아서 g++로 컴파일을 수행합니다.
 
 enum class CompileOption

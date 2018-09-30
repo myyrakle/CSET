@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "pch.h"
 #include "Compiler.h"
 
 void Compiler::add_file(wstring && filename)
@@ -8,13 +8,11 @@ void Compiler::add_file(wstring && filename)
 
 void Compiler::compile() const
 {
-	
-	//Ä¿¸Çµå¿¡ ½ò ¸í·É¾î ±¸¼º
 	wstring cmd = this->_original_filepath + L"\\MinGW\\bin\\g++.exe";
 
 	for (auto& filename : filenames)
 		(cmd += ' ') += filename;
-	
+
 	_wsystem(cmd.c_str());
 }
 

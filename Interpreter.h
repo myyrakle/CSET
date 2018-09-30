@@ -1,5 +1,6 @@
 #pragma once
-#include "stdafx.h"
+#pragma once
+#include "pch.h"
 
 //CSET 코드를 C++ 코드로 변환합니다.
 //+ 하나의 cpp 파일로 합칩니다.(바뀔 수 있음)
@@ -18,11 +19,12 @@ public:
 	void finish(); //다 끝내고 뽑아내기
 
 private: //인터프리트 내부 작업들
-	bool read_line(); //현재 파일에서 한줄 읽어 (bool)fin 리턴
+	void read_line(); //현재 파일에서 한줄 읽어옴
 	void read_line_if_empty();
-	void line_to_words(); 
+	void line_to_words();
 	void convert_typename(std::wstring&);
 	void convert_unused_keywords(std::wstring&);
+	void do_import(const std::wstring&);
 private:
 	void print_error(wstring_view) const;
 private:
@@ -41,20 +43,20 @@ private:
 	wstring _original_filepath;
 
 private:
-	wstring temp_name = L"__temp__name";
-	
+	wstring TEMP_name = L"__temp__name";
+
 private:
 	vector<wstring> filenames; //파일
 	wstring_view current_filename;
-	wifstream fin;
+	wifstream current_file_input;
 
 private:
 	wstring line;
-	int line_num=0;
+	int line_num = 0;
 	queue<wstring> words;
 
 private:
-	int unclosed_bracket=0;
+	int unclosed_bracket = 0;
 
 private: //main 함수 처리용
 	bool in_main_func = false;

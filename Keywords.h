@@ -43,7 +43,6 @@ namespace keywords
 	constexpr auto FOR = L"for";
 	constexpr auto RFOR = L"rfor";
 	constexpr auto IN_ = L"in";
-	constexpr auto REVERSE = L"reverse";
 	constexpr auto WHILE = L"while";
 	//นÝบน
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Interpreter.h"
 
 void Interpreter::add_file(wstring && filename)
@@ -15,40 +15,36 @@ void Interpreter::interpret()
 	{
 		this->current_filename = filename;
 
-		this->fin.open(filename);
-		
-		this->line_num = 0;
-		while (this->read_line())
-			this->interpret_global();
+		this->current_file_input.open(filename);
 
-		fin.close();
+		this->line_num = 0;
+
+		while (this->current_file_input)
+		{
+			this->read_line();
+			this->interpret_global();
+		}
+
+		current_file_input.close();
 	}
-	
+
 	this->finish();
 }
 
 void Interpreter::push_default_header()
 {
+	//모듈 포함으로 교체 예정
 	prototypes += L"#include <iostream>\n";
 	prototypes += L"#include <string>\n";
 	prototypes += L"using string = std::wstring;\n";
 	prototypes += L"#include <vector>\n";
 	prototypes += L"#include <array>\n";
-
-	wcout << this->_original_filepath << endl << endl;
-	fin.open(this->_original_filepath + L"\\Library\\console.h");
-	if (fin.good()) printf("\n열림\n");
-	else printf("\n안열림\n");
-
-	while (fin)
-		this->prototypes += fin.get();
-	
-	fin.close();
+	//
 }
 
 void Interpreter::finish()
 {
-	wofstream fout(this->_original_filepath+L"\\temp\\temp.cpp");
+	wofstream fout(this->_original_filepath + L"\\temp\\temp.cpp");
 
 	for (auto& source : this->prototypes)
 		fout << source;
@@ -58,25 +54,26 @@ void Interpreter::finish()
 	fout.close();
 }
 
-bool Interpreter::read_line()
+void Interpreter::read_line()
 {
-	if (this->fin)
+	if (this->current_file_input)
 	{
-		std::getline(this->fin, this->line);
+		std::getline(this->current_file_input, this->line);
 		this->line_num++;
 		this->line_to_words();
 	}
-	return (bool)this->fin;
 }
 
-//한줄 읽어서 화이트스페이스 기준으로 단어 분리. 코멘트는 삭제. 문자열 리터럴은 wstring으로 처리
-void Interpreter::line_to_words() 
+//한줄 읽어서 화이트스페이스 기준으로 단어 분리. 
+//코멘트는 삭제. 
+//문자열 리터럴은 wstring으로 처리
+void Interpreter::line_to_words()
 {
 	wstring word;
-	wstring text_literal=L"";
+	wstring text_literal = L"";
 
 	bool in_text = false; // 문자열 리터럴을 탐색중인가?
-	bool quote_is_open = false; 
+	bool quote_is_open = false;
 
 	bool is_escape = false;
 
@@ -103,12 +100,12 @@ void Interpreter::line_to_words()
 		else //슬래시가 연속되지 않으니, 체크 해제.
 			has_one_slash = false;
 
-		 
+
 		if (c == '\"' && is_escape == false) //" 문자로 문자열 리터럴이 열릴 때
 		{
 			if (in_text == false) //들어갈 때
 			{
-				text_literal = L"std::wstring(L\"";
+				text_literal = L"std::wstring(L\""; // 구현 String으로 교체 예정
 				in_text = true;
 				continue;
 			}
@@ -126,13 +123,13 @@ void Interpreter::line_to_words()
 				is_escape = false;
 			else if (c == '\\') //이스케이프 문자 체크
 				is_escape = true;
-				
+
 			text_literal += c;
 			continue;
 		}
 
 		//괄호 만날 경우 각 괄호를 한 단어로 분리
-		else if (c == '(' || c == ')' || c == '{' || c == '}' || c == ':' || c == '=') 
+		else if (c == '(' || c == ')' || c == '{' || c == '}' || c == ':' || c == '=')
 		{
 			if (!word.empty())
 			{
@@ -141,10 +138,10 @@ void Interpreter::line_to_words()
 				word.clear();
 			}
 
-			words.push(wstring(1,c));
+			words.push(wstring(1, c));
 			continue;
 		}
-		
+
 		else if (c == '\n' || c == '\t' || c == ' ') //화이트스페이스 기준 분리
 		{
 			if (word != L"")
@@ -163,31 +160,44 @@ void Interpreter::line_to_words()
 	}
 }
 
-void Interpreter::convert_typename(std::wstring& word) //타입 키워드를 실제 구현 클래스명으로 변경
+//타입 키워드를 실제 구현 클래스명으로 변경
+void Interpreter::convert_typename(std::wstring& word) 
 {
 	auto to_upper = [](wchar_t& c) { if (c >= 'a' && c <= 'z') c -= 32; };
 
-	if (word == keywords::OBJECT || 
+	if (word == keywords::OBJECT ||
 		word == keywords::CHAR || keywords::STRING ||
 		word == keywords::BOOL || keywords::BYTE ||
-		word == keywords::INT || 
-		word ==keywords::FLOAT || word == keywords::DOUBLE)
+		word == keywords::INT ||
+		word == keywords::FLOAT || word == keywords::DOUBLE)
 		to_upper(word[0]);
 	else
 		return;
 }
 
 //쓰지 않을 예약어 식별자로 쓸수 있게 수정
-void Interpreter::convert_unused_keywords(std::wstring & word) 
+void Interpreter::convert_unused_keywords(std::wstring & word)
 {
 	if (word == keywords::unuse::AUTO || word == keywords::unuse::DELETE_ ||
 		word == keywords::unuse::GOTO || word == keywords::unuse::LONG)
-		word.insert(0, this->temp_name);
+		word.insert(0, this->TEMP_name);
+}
+
+void Interpreter::do_import(const std::wstring& module_name)
+{
+	//To Do : Library 경로의 .h 모듈 읽어넣음
+	wifstream read_module(this->_original_filepath + L"\\Library\\" + module_name + L".h");
+	if (!read_module) this->print_error(L"모듈이 안열리네요.");
+	while (read_module)
+		this->prototypes += read_module.get();
+	read_module.close();
+	//if (fin.good()) printf("\n열림\n");
+	//else printf("\n안열림\n");
 }
 
 void Interpreter::read_line_if_empty()
 {
-	if (fin)
+	if (current_file_input)
 		if (words.empty())
 			this->read_line();
 }
@@ -233,6 +243,20 @@ void Interpreter::interpret_global()
 		throw new exception("using에 뭐가 더 들어갔네요?");
 	}
 
+	//import 키워드
+	else if (this->words.front() == keywords::IMPORT)
+	{
+		cout << "이거 실행 안되나" << endl << endl;
+		words.pop();
+		if (words.empty())
+			this->print_error(L"import할 모듈이 어딨죠?");
+		else
+		{
+			this->do_import(words.front());
+			words.pop();
+		}
+	}
+
 	else //아무것도 아닐 경우
 	{
 		this->bodys += this->line;
@@ -248,10 +272,20 @@ void Interpreter::interpret_local()
 		bodys += L"\nsetlocale(LC_ALL, \"\");\n";
 		if (!cmdline_arg_name.empty())
 		{
-			bodys += L"std::vector<std::wstring> "; bodys += cmdline_arg_name; bodys += L";\n";
-			bodys += L"for(int i=0;i<"; bodys += temp_argc; bodys += L";i++)\n\t";
-			bodys += cmdline_arg_name; bodys += L".emplace_back("; bodys += temp_args; bodys += L"[i]);\n";
+			//이 형태로 변환됨
+			/*
+			auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };
+			std::vector<std::wstring> 명령행_인자명;
+			for(int i = 0; i < 인자_개수; i++)
+				명령행_인자명.emplace_back(wstring(&인자_배열[0], &인자_배열[___strlen(str)]))
+			*/
+			bodys += L"auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };";
+			bodys += L"std::vector<std::wstring> "; bodys += /*명령행 인자*/cmdline_arg_name;
+			bodys += L";\n";
 
+			bodys += L"for(int i=0;i<"; bodys += TEMP_argc; bodys += L";i++)\n\t";
+			bodys += cmdline_arg_name;
+			bodys += L".emplace_back(std::wstring(&"; bodys += TEMP_args; bodys += L"[0], &"; bodys += TEMP_args; bodys += L"[___strlen(str)]";
 			in_main_func = false;
 			cmdline_arg_name.clear();
 		}
@@ -288,7 +322,7 @@ void Interpreter::interpret_local()
 		else
 		{
 			bodys += words.front(); words.pop();
-		}		
+		}
 	}
 
 	return;
@@ -300,7 +334,7 @@ void Interpreter::interpret_function()
 
 	if (this->words.front() == keywords::STATIC)
 		func_signature += keywords::STATIC, this->words.pop();
-	
+
 	if (this->words.front() == keywords::FUNC)
 		func_signature += L"auto ", this->words.pop();
 
@@ -308,7 +342,7 @@ void Interpreter::interpret_function()
 	//함수명 추출
 	if (words.front() == L"main") //main 함수면 따로 처리
 		this->in_main_func = true;
-	
+
 	func_signature += words.front();
 	words.pop();
 
@@ -324,33 +358,33 @@ void Interpreter::interpret_function()
 	while (words.front() != L")")
 	{
 
-				/*	main 함수	*/
-				if (this->in_main_func) 
+		/*	main 함수	*/
+			if (this->in_main_func)
+			{
+				this->cmdline_arg_name = words.front();
+				words.pop();
+
+				if (words.front() != L")") //뭐가 더 있음
 				{
-					this->cmdline_arg_name = words.front();
-					words.pop();
-
-					if (words.front() != L")") //뭐가 더 있음
+					wprintf(func_signature.c_str());
+					this->read_line_if_empty();
+					if (words.front() != L":")
 					{
-						wprintf(func_signature.c_str());
-						this->read_line_if_empty();
-						if (words.front() != L":")
-						{
-							words.pop();
-							words.pop();
-						}
-						else
-							this->print_error(L"명령행 인자에는 하나만 넣을 수 있어요");
+						words.pop();
+						words.pop();
 					}
-
-					func_signature += L"int ";
-					func_signature += temp_argc;
-					func_signature += L",char** ";
-					func_signature += temp_args;
-
-					break;
+					else
+						this->print_error(L"명령행 인자에는 하나만 넣을 수 있어요");
 				}
-				/*	main 함수	*/
+
+				func_signature += L"int ";
+				func_signature += TEMP_argc;
+				func_signature += L",char** ";
+				func_signature += TEMP_args;
+
+				break;
+			}
+		/*	main 함수	*/
 
 
 		//한정자
@@ -388,10 +422,10 @@ void Interpreter::interpret_function()
 	}
 	func_signature += words.front();
 	words.pop();
-	
+
 	//리턴타입
 	if (words.empty() || words.front() == L"{") //없으면 void
-		if(in_main_func)
+		if (in_main_func)
 			func_signature += L"->int";
 		else
 			func_signature += L"->void";
@@ -407,7 +441,7 @@ void Interpreter::interpret_function()
 	}
 	else
 		this->print_error(L"리턴타입 부분이 이상한거같은데");
-	
+
 	this->prototypes += func_signature;
 	this->prototypes += L";\n";
 	this->bodys += func_signature;
@@ -436,8 +470,8 @@ void Interpreter::interpret_variable()
 	if (head_word == keywords::LITERAL)
 	{
 		variable_expr += L"constexpr auto ";
-		
-		while ( !words.empty() )
+
+		while (!words.empty())
 		{
 			variable_expr += this->words.front();
 			variable_expr += ' ';
@@ -472,7 +506,7 @@ void Interpreter::interpret_variable()
 		variable_expr += var_name;
 
 		//나머지 갖다붙이기
-		while (!words.empty()) 
+		while (!words.empty())
 		{
 			variable_expr += words.front();
 			variable_expr += ' ';
@@ -487,4 +521,3 @@ void Interpreter::set_original_filepath(const wstring &path)
 {
 	this->_original_filepath = path;
 }
-
