@@ -55,6 +55,7 @@ namespace keywords
 
 	//선언
 	constexpr auto FUNC = L"func";
+	constexpr auto FUNCTYPE = L"functype";
 	constexpr auto CLASS = L"class";
 
 	//변수
@@ -65,7 +66,8 @@ namespace keywords
 
 	//동적 할당
 	constexpr auto NEW = L"new";
-	constexpr auto REFC = L"refc";
+	constexpr auto RCNEW = L"rcnew";
+	constexpr auto RC = L"rc";
 	//동적 할당
 
 	//네임스페이스

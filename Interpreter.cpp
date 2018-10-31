@@ -1,44 +1,19 @@
 #include "pch.h"
 #include "Interpreter.h"
 
-void Interpreter::add_file(wstring && filename)
-{
-	filenames.emplace_back(std::forward<wstring&&>(filename));
-}
-
-void Interpreter::interpret()
+void Interpreter::interpret(const std::queue<std::wstring>& tokens)
 {
 	this->push_default_header();
 
-	//전부 읽어서 저장.
-	for (auto& filename : filenames)
-	{
-		this->current_filename = filename;
-
-		this->current_file_input.open(filename);
-
-		this->line_num = 0;
-
-		while (this->current_file_input)
-		{
-			this->read_line();
-			this->interpret_global();
-		}
-
-		current_file_input.close();
-	}
+	//...
 
 	this->finish();
 }
 
 void Interpreter::push_default_header()
 {
-	//모듈 포함으로 교체 예정
-	prototypes += L"#include <iostream>\n";
-	prototypes += L"#include <string>\n";
-	prototypes += L"using string = std::wstring;\n";
-	prototypes += L"#include <vector>\n";
-	prototypes += L"#include <array>\n";
+	this->do_import(L"basic");
+	//this->do_import(L"console");
 	//
 }
 
@@ -46,6 +21,7 @@ void Interpreter::finish()
 {
 	wofstream fout(this->_original_filepath + L"\\temp\\temp.cpp");
 
+	
 	for (auto& source : this->prototypes)
 		fout << source;
 	for (auto& source : this->bodys)
@@ -59,106 +35,12 @@ void Interpreter::read_line()
 	if (this->current_file_input)
 	{
 		std::getline(this->current_file_input, this->line);
+		/*테스트용*/ wcout << this->line << endl;
 		this->line_num++;
-		this->line_to_words();
 	}
 }
 
-//한줄 읽어서 화이트스페이스 기준으로 단어 분리. 
-//코멘트는 삭제. 
-//문자열 리터럴은 wstring으로 처리
-void Interpreter::line_to_words()
-{
-	wstring word;
-	wstring text_literal = L"";
 
-	bool in_text = false; // 문자열 리터럴을 탐색중인가?
-	bool quote_is_open = false;
-
-	bool is_escape = false;
-
-	bool has_one_slash = false;
-	bool in_comment = false;
-
-	for (auto& c : this->line)
-	{
-
-		//한줄 주석 제거
-		if (c == '/' && in_text == false) //문자열 리터럴 안이 아니면서, /임
-		{
-			if (has_one_slash == false) //슬래시가 하나도 없었으면 하나 체크
-			{
-				has_one_slash = true;
-				continue;
-			}
-			else //슬래시가 하나 있었으니 여기서부터는 주석. 전부 자르고 break, 리턴
-			{
-				words.push(word);
-				break;
-			}
-		}
-		else //슬래시가 연속되지 않으니, 체크 해제.
-			has_one_slash = false;
-
-
-		if (c == '\"' && is_escape == false) //" 문자로 문자열 리터럴이 열릴 때
-		{
-			if (in_text == false) //들어갈 때
-			{
-				text_literal = L"std::wstring(L\""; // 구현 String으로 교체 예정
-				in_text = true;
-				continue;
-			}
-			else //나갈 때
-			{
-				text_literal += L"\")";
-				this->words.push(text_literal);
-				in_text = false;
-				continue;
-			}
-		}
-		else if (in_text) //문자열 리터럴 탐색중일 경우
-		{
-			if (is_escape == true) //체크되어있으면 해제
-				is_escape = false;
-			else if (c == '\\') //이스케이프 문자 체크
-				is_escape = true;
-
-			text_literal += c;
-			continue;
-		}
-
-		//괄호 만날 경우 각 괄호를 한 단어로 분리
-		else if (c == '(' || c == ')' || c == '{' || c == '}' || c == ':' || c == '=')
-		{
-			if (!word.empty())
-			{
-				this->convert_typename(word);
-				words.push(word);
-				word.clear();
-			}
-
-			words.push(wstring(1, c));
-			continue;
-		}
-
-		else if (c == '\n' || c == '\t' || c == ' ') //화이트스페이스 기준 분리
-		{
-			if (word != L"")
-			{
-				this->convert_typename(word);
-				this->words.push(word);
-				word.clear();
-			}
-			continue;
-		}
-		else
-		{
-			word += c;
-			continue;
-		}
-	}
-}
 
 //타입 키워드를 실제 구현 클래스명으로 변경
 void Interpreter::convert_typename(std::wstring& word) 
@@ -185,14 +67,16 @@ void Interpreter::convert_unused_keywords(std::wstring & word)
 
 void Interpreter::do_import(const std::wstring& module_name)
 {
-	//To Do : Library 경로의 .h 모듈 읽어넣음
-	wifstream read_module(this->_original_filepath + L"\\Library\\" + module_name + L".h");
+	//Library 경로 모듈 읽어넣음
+	wifstream read_module(((this->_original_filepath + L"\\Library\\") + module_name) + L".h");
+	
 	if (!read_module) this->print_error(L"모듈이 안열리네요.");
+	
 	while (read_module)
 		this->prototypes += read_module.get();
+	this->prototypes += L"\n\n";
+
 	read_module.close();
-	//if (fin.good()) printf("\n열림\n");
-	//else printf("\n안열림\n");
 }
 
 void Interpreter::read_line_if_empty()
@@ -202,59 +86,72 @@ void Interpreter::read_line_if_empty()
 			this->read_line();
 }
 
-void Interpreter::print_error(wstring_view log) const
+void Interpreter::print_error(wstring_view log)
 {
 	wprintf(L"파일명 %s\n", this->current_filename.data());
 	wprintf(L"라인 : %d\n", this->line_num);
 	wprintf(L"%s", log.data());
+	
+	this->finish();
+
 	exit(EXIT_SUCCESS);
 }
 
 void Interpreter::interpret_global()
 {
-	auto head_word = words.front();
-
 	//func 키워드 만날 경우
-	if (this->words.front() == keywords::FUNC)
+	if (words.front() == keywords::FUNC)
 	{
 		this->interpret_function(); //시그너처 파싱
-		this->interpret_local(); //몸체 로컬
+		this->interpret_local(); //몸체 로컬 진입
+	}
+
+	//static 키워드 만날 경우
+	else if (words.front() == keywords::STATIC)
+	{
+		//ToDo:static 애들 처리
 	}
 
 	//const나 mut, literal 키워드일 경우
-	else if (head_word == keywords::CONST_ || head_word == keywords::MUT || head_word == keywords::LITERAL)
+	else if (words.front() == keywords::CONST_ || words.front() == keywords::MUT
+		|| words.front() == keywords::LITERAL)
+	{
 		this->interpret_variable();
+	}
+
+	//import 키워드일 경우
+	else if (words.front() == keywords::IMPORT)
+	{
+		cout << "이거 실행 안되나" << endl << endl;
+		this->words.pop(); //import 삭제
+
+		if (words.empty())
+			this->print_error(L"import할 모듈이 어딨죠?");
+		else
+		{
+			this->do_import(words.front()); //console이면 console.h 읽어넣음
+			words.pop();
+		}
+	}
 
 	//class 키워드일 경우
-	else if (head_word == keywords::CLASS)
-		;//this->interpret_class();
+	else if (words.front() == keywords::CLASS)
+	{
+		//this->interpret_class();
+	}
 
-	else if (this->words.front() == keywords::NAMESPACE)
+	else if (words.front() == keywords::NAMESPACE)
 	{
 		//To do
 	}
 
-	else if (this->words.front() == keywords::USING)
+	else if (words.front() == keywords::USING)
 	{
 		this->words.pop();
 		this->bodys += L"using namespace ";
 		this->bodys += words.front();
 		this->bodys += ';';
 		throw new exception("using에 뭐가 더 들어갔네요?");
-	}
-
-	//import 키워드
-	else if (this->words.front() == keywords::IMPORT)
-	{
-		cout << "이거 실행 안되나" << endl << endl;
-		words.pop();
-		if (words.empty())
-			this->print_error(L"import할 모듈이 어딨죠?");
-		else
-		{
-			this->do_import(words.front());
-			words.pop();
-		}
 	}
 
 	else //아무것도 아닐 경우
@@ -274,10 +171,9 @@ void Interpreter::interpret_local()
 		{
 			//이 형태로 변환됨
 			/*
-			auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };
 			std::vector<std::wstring> 명령행_인자명;
 			for(int i = 0; i < 인자_개수; i++)
-				명령행_인자명.emplace_back(wstring(&인자_배열[0], &인자_배열[___strlen(str)]))
+				명령행_인자명.emplace_back(인자들[i]);
 			*/
 			bodys += L"auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };";
 			bodys += L"std::vector<std::wstring> "; bodys += /*명령행 인자*/cmdline_arg_name;
@@ -285,7 +181,7 @@ void Interpreter::interpret_local()
 
 			bodys += L"for(int i=0;i<"; bodys += TEMP_argc; bodys += L";i++)\n\t";
 			bodys += cmdline_arg_name;
-			bodys += L".emplace_back(std::wstring(&"; bodys += TEMP_args; bodys += L"[0], &"; bodys += TEMP_args; bodys += L"[___strlen(str)]";
+			bodys += L".emplace_back("; bodys += TEMP_args; bodys += L'[i]);'; 
 			in_main_func = false;
 			cmdline_arg_name.clear();
 		}
@@ -318,6 +214,12 @@ void Interpreter::interpret_local()
 			this->interpret_variable();
 			bodys += ';';
 		}
+
+		else if (words.front() == keywords::CLASS)
+		{
+			this->print_error(L"로컬 클래스 미지원");
+		}
+
 		//To do
 		else
 		{
@@ -343,12 +245,13 @@ void Interpreter::interpret_function()
 	if (words.front() == L"main") //main 함수면 따로 처리
 		this->in_main_func = true;
 
-	func_signature += words.front();
+	
+	func_signature += in_main_func ? L"wmain" : words.front();
 	words.pop();
 
 	//파라미터 체크
 	if (words.front() != L"(")
-		this->print_error(L"명령행 인자에는 하나만 넣을 수 있어요");
+		this->print_error(L"여는괄호 어딨어요"+words.front());
 	else
 	{
 		func_signature += words.front();
@@ -379,7 +282,7 @@ void Interpreter::interpret_function()
 
 				func_signature += L"int ";
 				func_signature += TEMP_argc;
-				func_signature += L",char** ";
+				func_signature += L",wchar_t** ";
 				func_signature += TEMP_args;
 
 				break;
@@ -517,7 +420,3 @@ void Interpreter::interpret_variable()
 	this->bodys += variable_expr;
 }
 
-void Interpreter::set_original_filepath(const wstring &path)
-{
-	this->_original_filepath = path;
-}
