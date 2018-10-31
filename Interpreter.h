@@ -5,28 +5,30 @@
 //CSET 코드를 C++ 코드로 변환합니다.
 //+ 하나의 cpp 파일로 합칩니다.(바뀔 수 있음)
 
-enum class InterpretOption
+enum class State
 {
-	//...
+	In_Global,
+	In_Func,
+	In_Main_Func,
+	In_Local,
 };
 
 class Interpreter
 {
 public:
-	void add_file(wstring&& filename); //변환할 파일 추가
-	void interpret(); //변환 수행.
+	void interpret(const std::queue<std::wstring>& tokens); //변환 수행.
 	void push_default_header();
 	void finish(); //다 끝내고 뽑아내기
 
 private: //인터프리트 내부 작업들
 	void read_line(); //현재 파일에서 한줄 읽어옴
 	void read_line_if_empty();
-	void line_to_words();
+	void line_to_words(); //tokenize
 	void convert_typename(std::wstring&);
 	void convert_unused_keywords(std::wstring&);
 	void do_import(const std::wstring&);
 private:
-	void print_error(wstring_view) const;
+	void print_error(wstring_view);
 private:
 	void interpret_global();
 	void interpret_local();
@@ -37,23 +39,10 @@ private:
 	void interpret_array();
 	void interpret_vector();
 
-public:
-	void set_original_filepath(const wstring&);
-private:
-	wstring _original_filepath;
-
 private:
 	wstring TEMP_name = L"__temp__name";
-
 private:
-	vector<wstring> filenames; //파일
-	wstring_view current_filename;
-	wifstream current_file_input;
-
-private:
-	wstring line;
 	int line_num = 0;
-	queue<wstring> words;
 
 private:
 	int unclosed_bracket = 0;
@@ -61,19 +50,6 @@ private:
 private: //main 함수 처리용
 	bool in_main_func = false;
 	wstring cmdline_arg_name;
-
-private: //result
-	wstring prototypes; //위에 모아놓을 전방선언들
-	wstring bodys; //
-
-
-
-
-public: //아직 사용하지 않음
-	const vector<InterpretOption>& get_options() const;
-	void add_option(InterpretOption&& option); //인터프리트 옵션 추가
-private:
-	vector<InterpretOption> options;
 
 
 public: //구현하지 않음
