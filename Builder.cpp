@@ -1,6 +1,10 @@
 ﻿#include "pch.h"
 #include "Builder.h"
 
+void Builder::build()
+{
+}
+
 void Builder::add_file(wstring && filename)
 {
 	filenames.emplace_back(std::forward<wstring&&>(filename));
@@ -9,12 +13,14 @@ void Builder::add_file(wstring && filename)
 void Builder::compile() const
 {
 	//환경변수 INCLUDE 설정 (#include 헤더 포함 경로)
+	//기본 라이브러리와 sfml 라이브러리 추가.
 	_wsystem(
 		(L"setx INCLUDE " + _original_filepath + L"\\msvc\\include;"
 			+ _original_filepath + L"\\Library\\SFML\\include").c_str()
 	);
 
 	//환경변수 LIB 설정 (lib 의존성 명시)
+	//기본 라이브러리와 sfml 라이브러리 추가.
 	_wsystem(
 		(L"setx LIB " + _original_filepath + L"\\msvc\\lib;"
 			+ _original_filepath + L"\\Library\\SFML\\lib").c_str()

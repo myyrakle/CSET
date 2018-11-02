@@ -27,6 +27,8 @@ void Handler::run()
 
 				//변환작업을 수행합니다.
 				this->interpreter.interpret(tokens);
+
+				this->builder.add_file(std::move(this->_original_filepath));
 			}
 		}
 		current_file_inputstream.close();

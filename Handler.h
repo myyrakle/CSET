@@ -40,6 +40,9 @@ public:
 	Handler(const Handler&) = delete;
 	Handler(Handler&&) = delete;
 	Handler& operator=(const Handler&) = delete;
-	Handler& operator=(Handler&) = delete;
+	Handler& operator=(Handler&&) = delete;
+
+public:
+	friend Interpreter;
 };
 

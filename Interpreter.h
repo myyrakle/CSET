@@ -13,8 +13,15 @@ enum class State
 	In_Local,
 };
 
+class Handler;
+
 class Interpreter
 {
+private:
+	Handler* caller;
+public:
+	void set_caller(Handler* ptr);
+
 public:
 	void interpret(const std::queue<std::wstring>& tokens); //변환 수행.
 	void push_default_header();

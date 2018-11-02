@@ -10,5 +10,7 @@ public: //기본 생성/대입
 	Tokenizer& operator=(const Tokenizer&) = delete;
 	Tokenizer(Tokenizer&&) = delete;
 	Tokenizer& operator=(Tokenizer&&) = delete;
+private:
+	bool in_block_comment = false;
+	bool in_block_string = false;
 };
-

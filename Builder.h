@@ -11,7 +11,7 @@ public:
 	void compile() const;
 
 public:
-	void set_original_filepath(const wstring&);
+	void set_original_filepath(wstring&&);
 private:
 	wstring _original_filepath;
 
