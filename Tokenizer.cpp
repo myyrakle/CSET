@@ -74,8 +74,8 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			case ')':
 			case '{':
 			case '}':
-			case '[':
-			case ']':
+			//case '[':
+			//case ']': //일단 보류
 			case '$':
 			case ';':
 			case ':':

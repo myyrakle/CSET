@@ -10,6 +10,8 @@ class Handler
 {
 public: 
 	void run();
+	bool readable() const;
+	std::queue<std::wstring>&& read_line_then_tokenize();
 public:
 	void add_file(std::wstring&&);
 	void set_original_filepath(const std::wstring&);

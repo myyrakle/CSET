@@ -23,25 +23,21 @@ public:
 	void set_caller(Handler* ptr);
 
 public:
-	void interpret(const std::queue<std::wstring>& tokens); //변환 수행.
-	void push_default_header();
+	void interpret(std::queue<std::wstring>& tokens); //변환 수행.
 	void finish(); //다 끝내고 뽑아내기
 
 private: //인터프리트 내부 작업들
-	void read_line(); //현재 파일에서 한줄 읽어옴
-	void read_line_if_empty();
-	void line_to_words(); //tokenize
 	void convert_typename(std::wstring&);
 	void convert_unused_keywords(std::wstring&);
 	void do_import(const std::wstring&);
 private:
 	void print_error(wstring_view);
 private:
-	void interpret_global();
-	void interpret_local();
-	void interpret_function();
-	void interpret_class();
-	void interpret_variable(); //const, mut, literal
+	void interpret_global(std::queue<std::wstring>&);
+	void interpret_local(std::queue<std::wstring>&);
+	void interpret_function(std::queue<std::wstring>&);
+	void interpret_class(std::queue<std::wstring>&);
+	void interpret_variable(std::queue<std::wstring>&); //const, mut, literal
 private:
 	void interpret_array();
 	void interpret_vector();
@@ -56,7 +52,7 @@ private:
 
 private: //main 함수 처리용
 	bool in_main_func = false;
-	wstring cmdline_arg_name;
+	std::wstring cmdline_arg_name;
 
 
 public: //구현하지 않음

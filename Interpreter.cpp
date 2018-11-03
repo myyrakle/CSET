@@ -168,7 +168,7 @@ void Interpreter::interpret_local(std::queue<std::wstring>& tokens)
 			for(int i = 0; i < 인자_개수; i++)
 				명령행_인자명[i] = 인자들[i];
 			*/
-			caller->bodys += L"auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };";
+			//caller->bodys += L"auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };";
 			caller->bodys += L"DynamicArray<std::wstring> "; caller->bodys += cmdline_arg_name;
 			caller->bodys += '('; caller->bodys += TEMP_argc; caller->bodys += L");\n";
 

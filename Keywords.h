@@ -37,6 +37,7 @@ namespace keywords
 	constexpr auto ELSE = L"else";
 	constexpr auto SWITCH = L"switch";
 	constexpr auto CASE = L"case";
+	constexpr auto MATCH = L"match";
 	//분기
 
 	//반복
@@ -55,6 +56,7 @@ namespace keywords
 
 	//선언
 	constexpr auto FUNC = L"func";
+	constexpr auto CONTFUNC = L"constfunc";
 	constexpr auto FUNCTYPE = L"functype";
 	constexpr auto CLASS = L"class";
 

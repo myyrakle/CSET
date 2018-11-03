@@ -3,6 +3,8 @@
 
 void Handler::run()
 {
+	this->interpreter.set_caller(this);
+
 	//전부 읽어서 저장.
 	for (auto& filename : filenames)
 	{
@@ -19,11 +21,8 @@ void Handler::run()
 
 			while (this->current_file_inputstream)
 			{
-				//한줄 읽어옵니다.
-				auto line = this->getline();
-
 				//토큰화합니다.
-				this->tokens = std::move(this->tokenizer.tokenize(line));
+				this->tokens = this->read_line_then_tokenize();
 
 				//변환작업을 수행합니다.
 				this->interpreter.interpret(tokens);
@@ -31,13 +30,30 @@ void Handler::run()
 				this->builder.add_file(std::move(this->_original_filepath));
 			}
 		}
-		current_file_inputstream.close();
+		this->current_file_inputstream.close();
 
 		this->builder.build();
 	}
 	//compiler.add_file(original_filepath + L"\\temp\\temp.cpp");
 	//compiler.compile();
 }
+
+bool Handler::readable() const
+{
+	return bool(this->current_file_inputstream);
+}
+
+std::queue<std::wstring>&& Handler::read_line_then_tokenize()
+{
+	//한줄 읽어옵니다.
+	auto line = this->getline();
+	//토큰화합니다.
+	this->tokens = std::move(this->tokenizer.tokenize(line));
+
+	return std::move(tokens);
+}
+
+
 
 void Handler::add_file(std::wstring&& filename)
 {
