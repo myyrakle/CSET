@@ -1,0 +1,27 @@
+<if> -> if ( condition ) ( statement-true | expression-true )
+| if ( condition ) ( statement-true | expression-true; ) else ( statement-false | expression-false )
+
+<while> -> while( condition ) ( loop_statement | loop_expression )
+
+<for> -> for( range_declaration in range_expression ) ( loop_statement | loop_expression )
+
+<rfor> -> rfor( range_declaration in range_expression ) ( loop_statement | loop_expression )
+
+<import> -> import module_name
+
+<return> -> return expression(optional)
+
+<break> -> break label(optional)
+
+<continue> -> continue label(optional)
+
+
+<variable> -> ( const | mut ) variable_name :type(optional) =init_expression(optional)
+
+<literal> -> literal literal_name =value
+
+<function> -> func func_name(parameter-list) ->return_type(optional) { body }
+
+<class> -> class class_name inhertance_class(optional) { member_specification }
+
+<lambda> -> $(parameter-list) ->return_type(optional) { body }
