@@ -74,11 +74,10 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			case ')':
 			case '{':
 			case '}':
-			//case '[':
-			//case ']': //일단 보류
+			case '[':
+			case ']':
 			case '$':
 			case ';':
-			case ':':
 				if (!word.empty())
 					tokens.push(std::move(word));
 				tokens.emplace(1, c);
@@ -121,7 +120,8 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 					tokens.emplace(1, c);
 				break;
 
-				// ?/?? or ./..
+				// ?/?? or ./.. or :/::
+			case ':':
 			case '?':
 			case '.':
 				if (!word.empty()) tokens.push(std::move(word)); //일단 보내버리고
@@ -222,6 +222,8 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 		if (!word.empty())
 			tokens.push(std::move(word));
 
-		return tokens;
+		
 	}
+
+	return tokens;
 }

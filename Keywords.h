@@ -54,11 +54,26 @@ namespace keywords
 	constexpr auto RETURN = L"return";
 	//제어
 
-	//선언
+	//함수
 	constexpr auto FUNC = L"func";
+	constexpr auto CONSTFUNC = L"constfunc";
+	constexpr auto mutfunc = L"mutfunc";
 	constexpr auto CONTFUNC = L"constfunc";
 	constexpr auto FUNCTYPE = L"functype";
+	//함수
+
+	//타입선언
 	constexpr auto CLASS = L"class";
+	constexpr auto INTERFACE = L"interface";
+	constexpr auto ENUM = L"enum";
+	constexpr auto ALIAS = L"alias";
+	//타입선언
+
+	//접근제어
+	constexpr auto PUBLIC = L"public";
+	constexpr auto PROTECTED = L"protected";
+	constexpr auto PRIVATE = L"private";
+	//접근제어
 
 	//변수
 	constexpr auto CONST_ = L"const";
@@ -75,7 +90,6 @@ namespace keywords
 	//네임스페이스
 	constexpr auto USING = L"using";
 	constexpr auto NAMESPACE = L"namespace";
-	constexpr auto ALIAS = L"alias";
 
 	constexpr auto IMPORT = L"import";
 

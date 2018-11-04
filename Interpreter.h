@@ -34,8 +34,10 @@ private:
 	void print_error(wstring_view);
 private:
 	void interpret_global(std::queue<std::wstring>&);
-	void interpret_local(std::queue<std::wstring>&);
+	void interpret_local(std::queue<std::wstring>&, int);
 	void interpret_function(std::queue<std::wstring>&);
+	void interpret_lambda(std::queue<std::wstring>&);
+	std::wstring interpret_types(std::queue<std::wstring>&);
 	void interpret_class(std::queue<std::wstring>&);
 	void interpret_variable(std::queue<std::wstring>&); //const, mut, literal
 private:
@@ -48,7 +50,7 @@ private:
 	int line_num = 0;
 
 private:
-	int unclosed_bracket = 0;
+	//int unclosed_bracket = 0;
 
 private: //main 함수 처리용
 	bool in_main_func = false;
