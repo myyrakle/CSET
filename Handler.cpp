@@ -57,13 +57,10 @@ std::queue<std::wstring>&& Handler::read_line_then_tokenize()
 	return std::move(tokens);
 }
 
-
-
 void Handler::add_file(const std::wstring& filename)
 {
 	filenames.emplace_back(filename);
 }
-
 
 std::wstring Handler::getline()
 {

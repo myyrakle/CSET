@@ -88,7 +88,6 @@ void Interpreter::print_error(wstring_view log)
 void Interpreter::interpret_global(std::queue<std::wstring>& tokens)
 {
 	std::wcout << tokens.front() << std::endl;
-
 	//func 키워드 만날 경우
 	if (tokens.front() == keywords::FUNC)
 	{
