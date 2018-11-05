@@ -8,20 +8,20 @@
 #include <vector>
 
 
-class Object; //ÃÖ»óÀ§ Å¬·¡½º
-class Char; //¹®ÀÚ Å¸ÀÔ
-class String; //¹®ÀÚ¿­ Å¸ÀÔ
-class Bool; //³í¸® Å¸ÀÔ
-class Byte; //¹ÙÀÌÆ® Å¸ÀÔ
+class Object; //ìµœìƒìœ„ í´ë˜ìŠ¤
+class Char; //ë¬¸ì íƒ€ì…
+class String; //ë¬¸ìì—´ íƒ€ì…
+class Bool; //ë…¼ë¦¬ íƒ€ì…
+class Byte; //ë°”ì´íŠ¸ íƒ€ì…
 
-			//½Ç¼ö Å¸ÀÔ
+			//ì‹¤ìˆ˜ íƒ€ì…
 template<class FloatType>
 class Float_Basic;
 using Float = Float_Basic<float>;
 using Double = Float_Basic<double>;
 using Ldouble = Float_Basic<long double>;
 
-//Á¤¼ö Å¸ÀÔ
+//ì •ìˆ˜ íƒ€ì…
 template<class IntType>
 class Int_Basic;
 using Int = Int_Basic<int>;
@@ -35,18 +35,18 @@ using Uint16 = Int_Basic<uint16_t>;
 using Uint32 = Int_Basic<uint32_t>;
 using Uint64 = Int_Basic<uint64_t>;
 
-class Range; //¹üÀ§ Ç¥Çö ÄÁÅ×ÀÌ³Ê
-class Nullable; //¿É¼Å³Î
+class Range; //ë²”ìœ„ í‘œí˜„ ì»¨í…Œì´ë„ˆ
+class Nullable; //ì˜µì…”ë„
 
 template <class T>
-class Box; //¼ÒÀ¯±Ç ±â¹İ ½º¸¶Æ®Æ÷ÀÎÅÍ
+class Box; //ì†Œìœ ê¶Œ ê¸°ë°˜ ìŠ¤ë§ˆíŠ¸í¬ì¸í„°
 template <class T>
-class RcBox; //·¹ÆÛ·±½º Ä«¿îÆÃ ½º¸¶Æ®Æ÷ÀÎÅÍ
+class RcBox; //ë ˆí¼ëŸ°ìŠ¤ ì¹´ìš´íŒ… ìŠ¤ë§ˆíŠ¸í¬ì¸í„°
 
 //class FuncType;
 
 
-//ÃÖ»óÀ§ Å¬·¡½ºÀÔ´Ï´Ù.
+//ìµœìƒìœ„ í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
 class Object
 {
 public:
@@ -68,36 +68,36 @@ public:
 };
 
 
-//¹®ÀÚ Å¸ÀÔÀÔ´Ï´Ù.
+//ë¬¸ì íƒ€ì…ì…ë‹ˆë‹¤.
 #include <cctype>
 class Char : public Object
 {
 private:
 	wchar_t value = 0;
 public:
-	bool is_alpha()  //¾ËÆÄºªÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_alpha()  //ì•ŒíŒŒë²³ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return std::isalpha(value);
 	}
-	bool is_lower() const //¾ËÆÄºª ¼Ò¹®ÀÚÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_lower() const //ì•ŒíŒŒë²³ ì†Œë¬¸ìì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return std::islower(value);
 	}
-	bool is_upper() const //¾ËÆÄºª ´ë¹®ÀÚÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_upper() const //ì•ŒíŒŒë²³ ëŒ€ë¬¸ìì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return std::isupper(value);
 	}
-	bool is_digit() const //¼ıÀÚ ¹®ÀÚÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_digit() const //ìˆ«ì ë¬¸ìì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return std::isdigit(value);
 	}
-	bool is_whitespace() const //È­ÀÌÆ®½ºÆäÀÌ½ºÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_whitespace() const //í™”ì´íŠ¸ìŠ¤í˜ì´ìŠ¤ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return (value == ' ' || value == '\n' || value == '\t');
 	}
-	bool is_korean() const //ÇÑ±ÛÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_korean() const //í•œê¸€ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
-		return L'¤¡' <= value && value <= L'ÆR';
+		return L'ã„±' <= value && value <= L'';
 	}
 public:
 	Char(wchar_t c) : value(c) {}
@@ -124,7 +124,7 @@ public: //Object methods
 };
 
 
-//Á¤¼ö Å¸ÀÔÀÇ ÅÛÇÃ¸´ÀÔ´Ï´Ù.
+//ì •ìˆ˜ íƒ€ì…ì˜ í…œí”Œë¦¿ì…ë‹ˆë‹¤.
 #include <limits>
 template<class IntType>
 class Int_Basic : public Object
@@ -222,7 +222,7 @@ public:
 public:
 	operator const bool&() const { return value; }
 	operator bool&() { return value; }
-public: //µğÆúÆ®
+public: //ë””í´íŠ¸
 	Bool() = default;
 	virtual ~Bool() = default;
 	Bool(const Bool&) = default;
@@ -268,7 +268,7 @@ public:
 public:
 	operator const uint8_t&() const { return value; }
 	operator uint8_t&() { return value; }
-public: //µğÆúÆ®
+public: //ë””í´íŠ¸
 	Byte() = default;
 	virtual ~Byte() = default;
 	Byte(const Byte&) = default;
@@ -310,58 +310,58 @@ public:
 	template<class FloatType>
 	String(Float_Basic<FloatType> f) : value( std::move(std::to_wstring((FloatType)f)) )
 	{}
-public: //¾×¼¼½º ¿¬»êÀÚÀÔ´Ï´Ù.
+public: //ì•¡ì„¸ìŠ¤ ì—°ì‚°ìì…ë‹ˆë‹¤.
 	Char& operator[](Uint pos)
 	{ return value[(unsigned int)pos]; }
 	const Char& operator[](Uint pos) const 
 	{ return value[(unsigned int)pos]; }
 public:
-	Uint length() const //¹®ÀÚ¿­ÀÇ ±æÀÌ¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+	Uint length() const //ë¬¸ìì—´ì˜ ê¸¸ì´ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
 	{ return value.length(); }
-	bool is_empty() const //ºñ¾îÀÖ´Ù¸é true
+	bool is_empty() const //ë¹„ì–´ìˆë‹¤ë©´ true
 	{ return value.empty(); }
-	bool not_empty() const //ºñ¾îÀÖÁö ¾Ê´Ù¸é true
+	bool not_empty() const //ë¹„ì–´ìˆì§€ ì•Šë‹¤ë©´ true
 	{ return !value.empty(); }
 public:
-	bool includes(const String& str) const //¹®ÀÚ¿­ÀÇ Æ÷ÇÔ ¿©ºÎ¸¦ È®ÀÎÇÕ´Ï´Ù.
+	bool includes(const String& str) const //ë¬¸ìì—´ì˜ í¬í•¨ ì—¬ë¶€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤.
 	{ 
 		return value.find((string_t)str) != std::wstring::npos; 
 	}
-	bool includes(const Char& c) const //¹®ÀÚÀÇ Æ÷ÇÔ ¿©ºÎ¸¦ È®ÀÎÇÕ´Ï´Ù.
+	bool includes(const Char& c) const //ë¬¸ìì˜ í¬í•¨ ì—¬ë¶€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return value.find(c) != string_t::npos;
 	}
 public:
-	void reserve(Uint size) //»çÀÌÁî¸¦ ¿¹¾àÇÕ´Ï´Ù. 
+	void reserve(Uint size) //ì‚¬ì´ì¦ˆë¥¼ ì˜ˆì•½í•©ë‹ˆë‹¤. 
 	{ 
 		value.reserve((unsigned int)size);
 	}
-	void clear() //µ¥ÀÌÅÍ¸¦ Ã»¼ÒÇÕ´Ï´Ù.
+	void clear() //ë°ì´í„°ë¥¼ ì²­ì†Œí•©ë‹ˆë‹¤.
 	{
 		value.clear();
 	}
 public:
-	Uint find(const String& str) const //¹®ÀÚ¿­ Å½»ö ÈÄ ÀÎµ¦½º ¹İÈ¯
+	Uint find(const String& str) const //ë¬¸ìì—´ íƒìƒ‰ í›„ ì¸ë±ìŠ¤ ë°˜í™˜
 	{ 
 		return value.find((string_t)str); 
 	}
-	Uint find(const Char& c) const //¹®ÀÚ Å½»ö ÈÄ ÀÎµ¦½º ¹İÈ¯
+	Uint find(const Char& c) const //ë¬¸ì íƒìƒ‰ í›„ ì¸ë±ìŠ¤ ë°˜í™˜
 	{ 
 		return value.find(c); 
 	}
-	String front_string(Uint index) const //ÀÎµ¦½º¸¦ ±âÁ¡À¸·Î ¾ÕºÎºĞ ¹®ÀÚ¿­ ¹İÈ¯
+	String front_string(Uint index) const //ì¸ë±ìŠ¤ë¥¼ ê¸°ì ìœ¼ë¡œ ì•ë¶€ë¶„ ë¬¸ìì—´ ë°˜í™˜
 	{
 		return String(value.substr(0, (unsigned int)index));
 	}
-	String back_string(Uint index) const //ÀÎµ¦½º¸¦ ±âÁ¡À¸·Î µŞºÎºĞ ¹®ÀÚ¿­ ¹İÈ¯
+	String back_string(Uint index) const //ì¸ë±ìŠ¤ë¥¼ ê¸°ì ìœ¼ë¡œ ë’·ë¶€ë¶„ ë¬¸ìì—´ ë°˜í™˜
 	{
 		return String(value.substr((unsigned int)index));
 	}
-	String substring(Uint begin, Uint end) const //being~endÀÎµ¦½º ±¸°£ÀÇ ºÎºĞ¹®ÀÚ¿­ ¹İÈ¯
+	String substring(Uint begin, Uint end) const //being~endì¸ë±ìŠ¤ êµ¬ê°„ì˜ ë¶€ë¶„ë¬¸ìì—´ ë°˜í™˜
 	{ 
 		return String(value.substr((unsigned int)begin, (unsigned int)end)); 
 	}
-	std::pair<String, String> split(Uint index) const //ÀÎµ¦½º¸¦ ±âÁ¡À¸·Î ¹®ÀÚ¿­À» ¹İÀ¸·Î ³ª´©¾î ¹İÈ¯.
+	std::pair<String, String> split(Uint index) const //ì¸ë±ìŠ¤ë¥¼ ê¸°ì ìœ¼ë¡œ ë¬¸ìì—´ì„ ë°˜ìœ¼ë¡œ ë‚˜ëˆ„ì–´ ë°˜í™˜.
 	{
 		return std::pair<String, String>(this->front_string(index), this->back_string(index));
 	}
@@ -378,7 +378,7 @@ public:
 	{
 
 	}
-public://ÀÌÅÍ·¹ÀÌÅÍ
+public://ì´í„°ë ˆì´í„°
 	decltype(auto) begin() { return value.begin(); }
 	decltype(auto) end() { return value.end(); }
 	decltype(auto) begin() const { return value.begin(); }
@@ -389,14 +389,14 @@ public://ÀÌÅÍ·¹ÀÌÅÍ
 	decltype(auto) rend() const { return value.end(); }
 public:
 
-public: //µğÆúÆ® »ı¼ºÀÚµé
+public: //ë””í´íŠ¸ ìƒì„±ìë“¤
 	String() = default;
 	~String() = default;
 	String(const String& str) = default;
 	String(String&& str) = default;
 	String& operator=(const String& str) = default;
 	String& operator=(String&& str) = default;
-public: //¹¬½ÃÀû Çüº¯È¯
+public: //ë¬µì‹œì  í˜•ë³€í™˜
 	operator string_t&() { return value; }
 	operator const string_t&() const { return value; }
 public: // 
@@ -448,7 +448,7 @@ public:
 	}
 	friend String operator+(const Char& c, const String& rhs)
 	{
-		return operator+(rhs, c); //À§ÀÓ
+		return operator+(rhs, c); //ìœ„ì„
 	}
 };
 
@@ -466,8 +466,8 @@ public:
 	private:
 		pointer obj = nullptr;
 	public:
-		iterator(pointer p) : obj(p) { p->current_value = p->head; } //begin/rbegin »ı¼º
-		iterator(nullptr_t __n) : obj(__n) {} // end/rend »ı¼º
+		iterator(pointer p) : obj(p) { p->current_value = p->head; } //begin/rbegin ìƒì„±
+		iterator(nullptr_t __n) : obj(__n) {} // end/rend ìƒì„±
 		virtual ~iterator() = default;
 		iterator() = delete;
 		iterator(const iterator&) = default;
@@ -485,7 +485,7 @@ public:
 				obj = nullptr;
 			return *this;
 		}
-		iterator operator++(int) { return this->operator++(); } //À§ÀÓ
+		iterator operator++(int) { return this->operator++(); } //ìœ„ì„
 		int& operator*() { return obj->current_value; }
 		const int& operator*() const { return obj->current_value; }
 		bool operator==(const iterator& rhs)
@@ -522,7 +522,7 @@ public:
 				obj = nullptr;
 			return *this;
 		}
-		reverse_iterator operator++(int) { return this->operator++(); } //À§ÀÓ
+		reverse_iterator operator++(int) { return this->operator++(); } //ìœ„ì„
 		int& operator*() { return obj->current_value; }
 		const int& operator*() const { return obj->current_value; }
 		bool operator==(const reverse_iterator& rhs)
@@ -534,7 +534,7 @@ public:
 			return this->obj != rhs.obj;
 		}
 	};
-public: //¹İº¹ÀÚ
+public: //ë°˜ë³µì
 	Range::iterator begin()
 	{
 		current_value = head;
@@ -544,7 +544,7 @@ public: //¹İº¹ÀÚ
 	{
 		return iterator(nullptr);
 	}
-public: //¿ª¼ø ¹İº¹ÀÚ
+public: //ì—­ìˆœ ë°˜ë³µì
 	Range::reverse_iterator rbegin()
 	{
 		current_value = tail;
@@ -625,7 +625,7 @@ public:
 	{
 		return value.empty();
 	}
-public: //¾×¼¼½º
+public: //ì•¡ì„¸ìŠ¤
 	T& operator[](Uint index)
 	{
 		return value[(size_t)index];
@@ -684,17 +684,17 @@ using dynamic_array = DynamicArray<T>;
 template <class T>
 class DynamicArray
 {
-public: /*¹İº¹ÀÚ Å¸ÀÔ*/
+public: /*ë°˜ë³µì íƒ€ì…*/
 	class iterator;
 	class reverse_iterator;
 	class const_iterator;
 	class const_reverse_iterator;
 
-private: /*¼Ó¼ºÀÔ´Ï´Ù*/
+private: /*ì†ì„±ì…ë‹ˆë‹¤*/
 	T * arr = nullptr;
 	size_t _length = 0;
 
-public: /*±âº» »ı¼º/´ëÀÔ*/
+public: /*ê¸°ë³¸ ìƒì„±/ëŒ€ì…*/
 	DynamicArray() = default;
 	virtual ~DynamicArray()
 	{
@@ -735,7 +735,7 @@ public: /*±âº» »ı¼º/´ëÀÔ*/
 		this->arr = other.arr;
 	}
 
-public: /*¸í½Ã »ı¼º/´ëÀÔÀÔ´Ï´Ù.*/
+public: /*ëª…ì‹œ ìƒì„±/ëŒ€ì…ì…ë‹ˆë‹¤.*/
 	DynamicArray(size_t _length) : _length(_length), arr(new T[_length])
 	{}
 	DynamicArray(std::initializer_list<T> init) : _length(init.size()), arr(new T[init.size()])
@@ -762,7 +762,7 @@ public: /*¸í½Ã »ı¼º/´ëÀÔÀÔ´Ï´Ù.*/
 		}
 	}
 
-public: /*¾×¼¼½º ¸Ş¼­µåÀÔ´Ï´Ù.*/
+public: /*ì•¡ì„¸ìŠ¤ ë©”ì„œë“œì…ë‹ˆë‹¤.*/
 	T & operator[](size_t index)
 	{
 		return arr[index];
@@ -787,7 +787,7 @@ public: /*¾×¼¼½º ¸Ş¼­µåÀÔ´Ï´Ù.*/
 	}
 
 public:
-	T * data() //·Î¿ì ½ÃÄö½º ¹İÈ¯
+	T * data() //ë¡œìš° ì‹œí€€ìŠ¤ ë°˜í™˜
 	{
 		return arr;
 	}
@@ -795,24 +795,24 @@ public:
 	{
 		return arr;
 	}
-	size_t length() const //±æÀÌ ¹İÈ¯
+	size_t length() const //ê¸¸ì´ ë°˜í™˜
 	{
 		return _length;
 	}
 
 public:
-	void clear() //Ã»¼Ò
+	void clear() //ì²­ì†Œ
 	{
 		delete[] arr;
 		_length = 0;
 	}
-	void create_from_length(size_t _length) //±æÀÌ·Î »ı¼º
+	void create_from_length(size_t _length) //ê¸¸ì´ë¡œ ìƒì„±
 	{
 		clear();
 		this->_length = _length;
 		arr = new T[_length];
 	}
-	void create_from_init(std::initializer_list<T> init) //Áß°ıÈ£ ÃÊ±âÄ¡·Î »ı¼º
+	void create_from_init(std::initializer_list<T> init) //ì¤‘ê´„í˜¸ ì´ˆê¸°ì¹˜ë¡œ ìƒì„±
 	{
 		delete[] arr;
 
@@ -833,8 +833,8 @@ public:
 		*this = std::move(temp);
 	}
 
-public: /*Å½»ö/È®ÀÎ*/
-	iterator find(const T& value) //Å½»ö ÈÄ À§Ä¡ ¹İº¹ÀÚ ¹İÈ¯
+public: /*íƒìƒ‰/í™•ì¸*/
+	iterator find(const T& value) //íƒìƒ‰ í›„ ìœ„ì¹˜ ë°˜ë³µì ë°˜í™˜
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return iterator(arr + i);
@@ -848,61 +848,61 @@ public: /*Å½»ö/È®ÀÎ*/
 
 		return const_iterator(arr + _length);
 	}
-	size_t find_index(const T& value) const //Å½»ö ÈÄ À§Ä¡ ÀÎµ¦½º ¹İÈ¯
+	size_t find_index(const T& value) const //íƒìƒ‰ í›„ ìœ„ì¹˜ ì¸ë±ìŠ¤ ë°˜í™˜
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return i;
 		return -1;
 	}
-	bool empty() const //½ÃÄö½º°¡ ºñ¾ú´ÂÁö¸¦ È®ÀÎÇÕ´Ï´Ù. ºñ¾îÀÖ´Ù¸é true¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+	bool empty() const //ì‹œí€€ìŠ¤ê°€ ë¹„ì—ˆëŠ”ì§€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤. ë¹„ì–´ìˆë‹¤ë©´ trueë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
 	{
 		return length == 0;
 	}
-	bool not_empty() const //½ÃÄö½º°¡ ºñ¾îÀÖÁö ¾ÊÀºÁö¸¦ È®ÀÎÇÕ´Ï´Ù. ºñ¾îÀÖÁö ¾Ê´Ù¸é true¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+	bool not_empty() const //ì‹œí€€ìŠ¤ê°€ ë¹„ì–´ìˆì§€ ì•Šì€ì§€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤. ë¹„ì–´ìˆì§€ ì•Šë‹¤ë©´ trueë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
 	{
 		return length != 0;
 	}
-	bool includes(const T& value) const //Æ÷ÇÔ ¿©ºÎ¸¦ È®ÀÎÇÕ´Ï´Ù. ÇØ´ç °ªÀ» Æ÷ÇÔÇÑ´Ù¸é true¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+	bool includes(const T& value) const //í¬í•¨ ì—¬ë¶€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤. í•´ë‹¹ ê°’ì„ í¬í•¨í•œë‹¤ë©´ trueë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return true;
 		return false;
 	}
-	size_t count(const T& value) const //ÇØ´ç °ª°ú ¸ÅÄ¡µÇ´Â °³¼ö¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+	size_t count(const T& value) const //í•´ë‹¹ ê°’ê³¼ ë§¤ì¹˜ë˜ëŠ” ê°œìˆ˜ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
 	{
 		int c = 0;
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) c++;
 		return c;
 	}
-public: //Á¤·Ä
-	void sort() //¿À¸§Â÷¼øÀ¸·Î Á¤·ÄÇÕ´Ï´Ù.
+public: //ì •ë ¬
+	void sort() //ì˜¤ë¦„ì°¨ìˆœìœ¼ë¡œ ì •ë ¬í•©ë‹ˆë‹¤.
 	{
 		std::sort<T*>(arr, arr + _length);
 	}
-	void rsort() //³»¸²Â÷¼øÀ¸·Î Á¤·ÄÇÕ´Ï´Ù.
+	void rsort() //ë‚´ë¦¼ì°¨ìˆœìœ¼ë¡œ ì •ë ¬í•©ë‹ˆë‹¤.
 	{
 		std::sort<T*>(arr, arr + _length, std::greater<T>());
 	}
-	bool is_sorted() const //¿À¸§Â÷¼ø Á¤·Ä»óÅÂÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_sorted() const //ì˜¤ë¦„ì°¨ìˆœ ì •ë ¬ìƒíƒœì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return std::is_sorted<T*>(arr, arr + _length);
 	}
-	bool is_rsorted() const //³»¸²Â÷¼ø Á¤·Ä»óÅÂÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+	bool is_rsorted() const //ë‚´ë¦¼ì°¨ìˆœ ì •ë ¬ìƒíƒœì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
 	{
 		return std::is_sorted<T*>(arr, arr + _length, std::greater<T>());
 	}
 public:
-	void reverse() //µÚÁı½À´Ï´Ù.
+	void reverse() //ë’¤ì§‘ìŠµë‹ˆë‹¤.
 	{
 		std::reverse<T*>(arr, arr + _length);
 	}
-	void fill(const T& value) //ÇØ´ç °ªÀ¸·Î Ã¤¿ò
+	void fill(const T& value) //í•´ë‹¹ ê°’ìœ¼ë¡œ ì±„ì›€
 	{
 		for (int i = 0; i < _length; i++)
 			arr[i] = value;
 	}
-public: //¹İº¹ÀÚ
+public: //ë°˜ë³µì
 	iterator begin()
 	{
 		return iterator(arr);
@@ -919,7 +919,7 @@ public: //¹İº¹ÀÚ
 	{
 		return const_iterator(arr + _length);
 	}
-public: //¿ª¼ø ¹İº¹ÀÚ
+public: //ì—­ìˆœ ë°˜ë³µì
 	reverse_iterator rbegin()
 	{
 		return reverse_iterator(arr + _length - 1);
@@ -936,7 +936,7 @@ public: //¿ª¼ø ¹İº¹ÀÚ
 	{
 		return const_reverse_iterator(arr - 1);
 	}
-public: //¸í½ÃÀû »ó¼ö¹İº¹ÀÚ
+public: //ëª…ì‹œì  ìƒìˆ˜ë°˜ë³µì
 	const_iterator cbegin() const
 	{
 		return const_iterator(arr);
@@ -955,13 +955,13 @@ public: //¸í½ÃÀû »ó¼ö¹İº¹ÀÚ
 	}
 public:
 
-	/*¿©±âºÎÅÍ ¹İº¹ÀÚ Á¤ÀÇÀÔ´Ï´Ù.*/
-	//¼øÂ÷ ¹İº¹ÀÚÀÔ´Ï´Ù.
+	/*ì—¬ê¸°ë¶€í„° ë°˜ë³µì ì •ì˜ì…ë‹ˆë‹¤.*/
+	//ìˆœì°¨ ë°˜ë³µìì…ë‹ˆë‹¤.
 	class iterator
 	{
 	private:
 		mutable T* ptr = nullptr;
-	public: //±âº» »ı¼º/´ëÀÔ
+	public: //ê¸°ë³¸ ìƒì„±/ëŒ€ì…
 		iterator() = default;
 		virtual ~iterator() = default;
 		iterator(const iterator&) = default;
@@ -1018,12 +1018,12 @@ public:
 		}
 	};
 
-	//¿ª¼ø ¹İº¹ÀÚÀÔ´Ï´Ù.
+	//ì—­ìˆœ ë°˜ë³µìì…ë‹ˆë‹¤.
 	class reverse_iterator
 	{
 	private:
 		mutable T* ptr = nullptr;
-	public: //±âº» »ı¼º/´ëÀÔ
+	public: //ê¸°ë³¸ ìƒì„±/ëŒ€ì…
 		reverse_iterator() = default;
 		virtual ~reverse_iterator() = default;
 		reverse_iterator(const reverse_iterator&) = default;
@@ -1053,7 +1053,7 @@ public:
 			ptr++;
 			return *this;
 		}
-	public: //¾×¼¼½º ¿¬»êÀÚÀÔ´Ï´Ù.
+	public: //ì•¡ì„¸ìŠ¤ ì—°ì‚°ìì…ë‹ˆë‹¤.
 		T & operator*()
 		{
 			return *ptr;
@@ -1062,7 +1062,7 @@ public:
 		{
 			return *ptr;
 		}
-	public: //ºñ±³, »ê¼ú
+	public: //ë¹„êµ, ì‚°ìˆ 
 		bool operator!=(const reverse_iterator& rhs) const
 		{
 			return this->ptr != rhs.ptr;
@@ -1073,12 +1073,12 @@ public:
 		}
 	};
 
-	//»ó¼ö ¼øÂ÷ ¹İº¹ÀÚÀÔ´Ï´Ù.
+	//ìƒìˆ˜ ìˆœì°¨ ë°˜ë³µìì…ë‹ˆë‹¤.
 	class const_iterator
 	{
 	private:
 		mutable const T* ptr = nullptr;
-	public: //±âº» »ı¼º/´ëÀÔ
+	public: //ê¸°ë³¸ ìƒì„±/ëŒ€ì…
 		const_iterator() = default;
 		virtual ~const_iterator() = default;
 		const_iterator(const const_iterator&) = default;
@@ -1087,7 +1087,7 @@ public:
 		const_iterator& operator=(const_iterator&&) = default;
 	public:
 		const_iterator(const T* p) : ptr(p) {}
-	public: //Áõ°¨ ¿¬»êÀÚ
+	public: //ì¦ê° ì—°ì‚°ì
 		const const_iterator & operator++() const
 		{
 			ptr++;
@@ -1108,12 +1108,12 @@ public:
 			ptr--;
 			return *this;
 		}
-	public: //¾×¼¼½º ¿¬»êÀÚ
+	public: //ì•¡ì„¸ìŠ¤ ì—°ì‚°ì
 		const T& operator*() const
 		{
 			return *ptr;
 		}
-	public: //ºñ±³/»ê¼ú ¿¬»êÀÚ
+	public: //ë¹„êµ/ì‚°ìˆ  ì—°ì‚°ì
 		bool operator!=(const const_iterator& rhs) const
 		{
 			return this->ptr != rhs.ptr;
@@ -1124,12 +1124,12 @@ public:
 		}
 	};
 
-	//»ó¼ö ¿ª¼ø ¹İº¹ÀÚÀÔ´Ï´Ù.
+	//ìƒìˆ˜ ì—­ìˆœ ë°˜ë³µìì…ë‹ˆë‹¤.
 	class const_reverse_iterator
 	{
 	private:
 		mutable const T* ptr = nullptr;
-	public: //±âº» »ı¼º/´ëÀÔ
+	public: //ê¸°ë³¸ ìƒì„±/ëŒ€ì…
 		const_reverse_iterator() = default;
 		virtual ~const_reverse_iterator() = default;
 		const_reverse_iterator(const const_reverse_iterator&) = default;
@@ -1138,7 +1138,7 @@ public:
 		const_reverse_iterator& operator=(const_reverse_iterator&&) = default;
 	public:
 		const_reverse_iterator(const T* p) : ptr(p) {}
-	public: //Áõ°¨ ¿¬»ê
+	public: //ì¦ê° ì—°ì‚°
 		const const_reverse_iterator & operator++() const
 		{
 			ptr--;
@@ -1159,12 +1159,12 @@ public:
 			ptr++;
 			return *this;
 		}
-	public: //¾×¼¼½º ¿¬»êÀÚ
-		const T& operator*() const //»ó¼ö Á¢±Ù¸¸ °¡´É
+	public: //ì•¡ì„¸ìŠ¤ ì—°ì‚°ì
+		const T& operator*() const //ìƒìˆ˜ ì ‘ê·¼ë§Œ ê°€ëŠ¥
 		{
 			return *ptr;
 		}
-	public: //ºñ±³/»ê¼ú ¿¬»êÀÚ
+	public: //ë¹„êµ/ì‚°ìˆ  ì—°ì‚°ì
 		bool operator!=(const const_reverse_iterator& rhs) const
 		{
 			return this->ptr != rhs.ptr;
