@@ -281,7 +281,8 @@ private:
 public:
 operator std::wstring() const
 {
-	std::wstring temp(value.length());
+	std::wstring temp;
+	temp.reserve(value.length());
 
 	for(int i=0; i<value.length();i++)
 		temp[i]=(const wchar_t&)value[i];
