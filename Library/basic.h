@@ -1,8 +1,6 @@
 #include <utility>
 #include <string>
 #include <stdint.h>
-#include <vector>
-
 
 class Object; //최상위 클래스
 class Char; //문자 타입
