@@ -29,6 +29,7 @@ public:
 private: //인터프리트 내부 작업들
 	void convert_typename(std::wstring&);
 	void convert_unused_keywords(std::wstring&);
+public:
 	void do_import(const std::wstring&);
 private:
 	void print_error(wstring_view);

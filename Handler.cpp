@@ -5,6 +5,8 @@ void Handler::run()
 {
 	this->interpreter.set_caller(this);
 
+	interpreter.do_import(L"basic");
+
 	//전부 읽어서 저장.
 	for (auto& filename : filenames)
 	{
@@ -27,11 +29,13 @@ void Handler::run()
 				//변환작업을 수행합니다.
 				this->interpreter.interpret(tokens);
 
-				this->builder.add_file(std::move(this->_original_filepath));
+				this->builder.add_file(this->_original_filepath);
 			}
 		}
 		this->current_file_inputstream.close();
 
+		this->builder.set_original_filepath(_original_filepath);
+		this->builder.add_file(_original_filepath + L"\\temp\\temp.cpp");
 		this->builder.build();
 	}
 	//compiler.add_file(original_filepath + L"\\temp\\temp.cpp");
@@ -55,15 +59,11 @@ std::queue<std::wstring>&& Handler::read_line_then_tokenize()
 
 
 
-void Handler::add_file(std::wstring&& filename)
+void Handler::add_file(const std::wstring& filename)
 {
-	filenames.emplace_back(std::move(filename));
+	filenames.emplace_back(filename);
 }
 
-void Handler::set_original_filepath(const wstring& path)
-{
-	this->_original_filepath = path;
-}
 
 std::wstring Handler::getline()
 {
@@ -82,3 +82,6 @@ void Handler::print_error(std::wstring_view str) const
 	wprintf(L"%s\n", str);
 	exit(EXIT_SUCCESS);
 }
+
+Handler::Handler(const std::wstring original_) : _original_filepath(original_)
+{}

@@ -44,7 +44,7 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 
 		switch (flag)
 		{
-		case StateFlag::DEFAULT:
+		case StateFlag::DEFAULT: //기본 진입점
 		{
 			switch (c)
 			{
@@ -67,6 +67,8 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			case '\n':
 			case '\t':
 				//무시함
+				if (!word.empty())
+					tokens.push(std::move(word));
 				break;
 
 				//바로바로 분리해도 되는 것들
@@ -140,7 +142,8 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			case '!':
 			case '%':
 			case '^':
-				if (!word.empty()) tokens.push(std::move(word)); //일단 보내버리고
+				if (!word.empty()) 
+					tokens.push(std::move(word)); //일단 보내버리고
 				if (line[i + 1] == '=')
 				{
 					word += c;
@@ -152,8 +155,10 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 					tokens.emplace(1, c);
 				break;
 
-			default:
+			default: //일반 어휘들이면 그냥 더함
 				word += c;
+				std::wcout << word << std::endl;
+				break;
 			}
 		} break;
 
@@ -211,18 +216,16 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			word += c;
 		} break;
 
-		case StateFlag::BLOCK_COMMENT:
+		case StateFlag::BLOCK_COMMENT: //미구현
 			break;
 
-		case StateFlag::BLOCK_STRING:
+		case StateFlag::BLOCK_STRING: //미구현
 			break;
 	
 		}
 
 		if (!word.empty())
 			tokens.push(std::move(word));
-
-		
 	}
 
 	return tokens;

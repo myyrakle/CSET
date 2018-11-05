@@ -18,7 +18,6 @@ void Interpreter::set_caller(Handler * ptr)
 
 void Interpreter::interpret(std::queue<std::wstring>& tokens)
 {
-	this->do_import(L"basic");
 	//...
 	while(!tokens.empty())
 		this->interpret_global(tokens);
@@ -29,45 +28,42 @@ void Interpreter::interpret(std::queue<std::wstring>& tokens)
 void Interpreter::do_import(const std::wstring& module_name)
 {
 	//Library 경로 모듈 읽어넣음
-	wifstream read_module(((caller->_original_filepath + L"\\Library\\") + module_name) + L".h");
+	std::wstring module_path = caller->_original_filepath + L"\\Library\\" 
+		+ module_name + L".h";
+
+	wifstream read_module;
 	
-	if (!read_module) this->print_error(L"모듈이 안열리네요.");
+	read_module.open(module_path);
+
+	if (!read_module) 
+		this->print_error(L"모듈이 안열리네요. : "+caller->_original_filepath);
 	
+	std::wstring temp;
+
 	while (read_module)
-		caller->prototypes += read_module.get();
-	caller->prototypes += L"\n\n";
+		temp += read_module.get();
+
+	caller->headers += temp;
+
+	caller->headers += L"\n\n";
 
 	read_module.close();
 }
 
 void Interpreter::finish()
 {
-	/*wofstream fout(this->_original_filepath + L"\\temp\\temp.cpp");
+	wofstream fout(caller->_original_filepath + L"\\temp\\temp.cpp");
 
-	
-	for (auto& source : this->prototypes)
+	for (auto& source : caller->headers)
 		fout << source;
-	for (auto& source : this->bodys)
+	for (auto& source : caller->prototypes)
+		fout << source;
+	for (auto& source : caller->bodys)
 		fout << source;
 
-	fout.close();*/
+	fout.close();
 }
 
-
-//타입 키워드를 실제 구현 클래스명으로 변경
-void Interpreter::convert_typename(std::wstring& word) 
-{
-	auto to_upper = [](wchar_t& c) { if (c >= 'a' && c <= 'z') c -= 32; };
-
-	if (word == keywords::OBJECT ||
-		word == keywords::CHAR || keywords::STRING ||
-		word == keywords::BOOL || keywords::BYTE ||
-		word == keywords::INT ||
-		word == keywords::FLOAT || word == keywords::DOUBLE)
-		to_upper(word[0]);
-	else
-		return;
-}
 
 //쓰지 않을 예약어 식별자로 쓸수 있게 수정
 void Interpreter::convert_unused_keywords(std::wstring & word)
@@ -91,6 +87,8 @@ void Interpreter::print_error(wstring_view log)
 
 void Interpreter::interpret_global(std::queue<std::wstring>& tokens)
 {
+	std::wcout << tokens.front() << std::endl;
+
 	//func 키워드 만날 경우
 	if (tokens.front() == keywords::FUNC)
 	{

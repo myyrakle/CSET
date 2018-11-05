@@ -6,12 +6,11 @@ class Builder
 public:
 	void build(); //본격적인 작업을 수행합니다.
 public:
-	//void add_header(wstring&& filename);
-	void add_file(wstring&& filename);
+	void add_file(const std::wstring& filename);
 	void compile() const;
 
 public:
-	void set_original_filepath(wstring&&);
+	void set_original_filepath(const std::wstring&);
 private:
 	wstring _original_filepath;
 

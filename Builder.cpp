@@ -3,11 +3,12 @@
 
 void Builder::build()
 {
+	this->compile();
 }
 
-void Builder::add_file(wstring && filename)
+void Builder::add_file(const std::wstring & filename)
 {
-	filenames.emplace_back(std::forward<wstring&&>(filename));
+	filenames.emplace_back(filename);
 }
 
 void Builder::compile() const
@@ -26,7 +27,6 @@ void Builder::compile() const
 			+ _original_filepath + L"\\Library\\SFML\\lib").c_str()
 	);
 
-
 	wstring cmd = this->_original_filepath + L"\\msvc\\bin\\cl.exe /EHsc";
 
 	for (auto& filename : filenames)
@@ -35,7 +35,7 @@ void Builder::compile() const
 	_wsystem(cmd.c_str());
 }
 
-void Builder::set_original_filepath(wstring&& path)
+void Builder::set_original_filepath(const std::wstring& path)
 {
 	this->_original_filepath = path;
 }
