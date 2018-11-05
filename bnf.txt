@@ -1,3 +1,15 @@
+<statement> -> { <statement> }
+| { <expression> }
+
+<expression> -> <expression> <binary-operator> <exrpession>
+| <unary-operator> <expression>
+| <expression> <unary-operator>
+| <token>
+
+<unary-operator> -> + | - | & 
+
+<binary-operator> -> + | - | * | / |  ||||||||||...
+
 <if> -> if ( condition ) ( statement-true | expression-true )
 | if ( condition ) ( statement-true | expression-true; ) else ( statement-false | expression-false )
 
@@ -16,11 +28,13 @@
 <continue> -> continue label(optional)
 
 
-<variable> -> ( const | mut ) variable_name :type(optional) =init_expression(optional)
+<variable> -> ( const | mut ) variable_name :<type>(optional) =init_expression(optional)
 
 <literal> -> literal literal_name =value
 
-<function> -> func func_name(parameter-list) ->return_type(optional) { body }
+<function> -> func func_name(<parameter-list>) ->return-type(optional) { body }
+
+<parameter-list> -> void | (const|mut) param-name :<type> , ...
 
 <class> -> class class_name inhertance_class(optional) { member_specification }
 
