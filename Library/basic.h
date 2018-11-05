@@ -1,6 +1,8 @@
-#include <utility>
+﻿#include <utility>
 #include <string>
 #include <stdint.h>
+#include <vector>
+
 
 class Object; //최상위 클래스
 class Char; //문자 타입
@@ -91,7 +93,7 @@ public:
 	}
 	bool is_korean() const //한글인지 확인합니다.
 	{
-		return L'ㄱ' <= value && value <= L'';
+		return L'ㄱ' <= value && value <= L'힣';
 	}
 public:
 	Char(wchar_t c) : value(c) {}
@@ -194,10 +196,7 @@ public: //Object methods
 	{
 		return std::move(*this);
 	}
-	virtual Uint get_size() const override
-	{
-		return Uint(sizeof(value));
-	}
+	virtual Uint get_size() const override;
 	virtual String get_typename() const override;
 	virtual String to_string() const override;
 };
@@ -229,10 +228,7 @@ public: //Object methods
 	{
 		return std::move(*this);
 	}
-	virtual Uint get_size() const override
-	{
-		return Uint(sizeof(value));
-	}
+	virtual Uint get_size() const override;
 	virtual String get_typename() const override;
 	virtual String to_string() const override;
 };
@@ -279,29 +275,30 @@ public:
 private:
 	string_t value;
 public:
-operator std::wstring() const
-{
-	std::wstring temp;
-	temp.reserve(value.length());
+	operator std::wstring() const
+	{
+		std::wstring temp;
+		temp.reserve(value.length());
 
-	for(int i=0; i<value.length();i++)
-		temp[i]=(const wchar_t&)value[i];
+		for(int i=0; i<value.length();i++)
+			temp.push_back((const wchar_t&)value[i]);
+		temp.push_back('\0');
 
-	return temp;
-}
+		return temp;
+	}
 public:
 	String(const wchar_t* str)
 	{
 		const int len = std::wcslen(str);
 		value.reserve(len);
 		for (int i = 0; i < len; i++)
-			value += str[i];
+			value.push_back(str[i]);
 	}
 	String(const std::wstring& str) 
 	{
 		value.reserve(str.length());
 		for (auto c : str)
-			value += c;
+			value.push_back(c);
 	}
 	String(const string_t& str) : value(str)
 	{}
@@ -566,20 +563,42 @@ public:
 };
 
 
-/*.*/
+/*get_size 오버라이드*/
 inline Uint Object::get_size() const
 {
 	return Uint(0);
 }
 
+inline Uint Char::get_size() const
+{
+	return Uint(sizeof(value));
+}
+
+inline Uint Bool::get_size() const
+{
+	return Uint(sizeof(value));
+}
+
+template <class FloatType>
+inline Uint Float_Basic<FloatType>::get_size() const 
+{
+	return Uint(sizeof(value));
+}
+
+/*get_typename 오버라이드*/
 inline String Object::get_typename() const
 {
 	return String(L"Object");
 }
 
-inline String Object::to_string() const
+inline String Char::get_typename() const
 {
-	return String(L"");
+	return String(L"Char");
+}
+
+inline String Bool::get_typename() const
+{
+	return String(L"Bool");
 }
 
 template<class IntType>
@@ -588,8 +607,38 @@ inline String Int_Basic<IntType>::get_typename() const
 	return String(L"String");
 }
 
+template <class FloatType>
+inline String Float_Basic<FloatType>::get_typename() const
+{
+	return String(L"Float");
+}
+
+
+/*to_string 오버라이드*/
+
+inline String Object::to_string() const
+{
+	return String(L"");
+}
+
+inline String Char::to_string() const
+{
+	return String(value);
+}
+
+inline String Bool::to_string() const
+{
+	return String(value);
+}
+
 template<class IntType>
 inline String Int_Basic<IntType>::to_string() const
+{
+	return String(std::to_wstring(value));
+}
+
+template<class FloatType>
+inline String Float_Basic<FloatType>::to_string() const
 {
 	return String(std::to_wstring(value));
 }
@@ -602,12 +651,11 @@ template <class T>
 class IArray : public Collection
 {
 public:
-	virtual Uint length() const = 0;
-	virtual T& operator[](Uint) = 0;
-	virtual const T& operator[](Uint) const = 0;
+	virtual Uint length() const=0;
+	virtual T& operator[](Uint)=0;
+	virtual const T& operator[](Uint) const=0;
 };
 
-#pragma once
 
 #include <stdexcept>
 #include <algorithm>
@@ -617,7 +665,7 @@ template <size_t Length, class T>
 class Array;
 
 template <size_t Length, class T>
-class Array : public IArray
+class Array : public IArray<T>
 {
 private:
 	std::array<T, Length> value;
@@ -687,7 +735,7 @@ template <class T>
 using dynamic_array = DynamicArray<T>;
 
 template <class T>
-class DynamicArray
+class DynamicArray : public IArray<T>
 {
 public: /*반복자 타입*/
 	class iterator;
@@ -697,7 +745,7 @@ public: /*반복자 타입*/
 
 private: /*속성입니다*/
 	T * arr = nullptr;
-	size_t _length = 0;
+	Uint _length = 0;
 
 public: /*기본 생성/대입*/
 	DynamicArray() = default;
@@ -741,7 +789,7 @@ public: /*기본 생성/대입*/
 	}
 
 public: /*명시 생성/대입입니다.*/
-	DynamicArray(size_t _length) : _length(_length), arr(new T[_length])
+	DynamicArray(Uint _length) : _length(_length), arr(new T[_length])
 	{}
 	DynamicArray(std::initializer_list<T> init) : _length(init.size()), arr(new T[init.size()])
 	{
@@ -768,24 +816,24 @@ public: /*명시 생성/대입입니다.*/
 	}
 
 public: /*액세스 메서드입니다.*/
-	T & operator[](size_t index)
+	T & operator[](Uint index)
 	{
-		return arr[index];
+		return arr[(size_t)index];
 	}
-	const T& operator[](size_t index) const
+	const T& operator[](Uint index) const
 	{
-		return arr[index];
+		return arr[(size_t)index];
 	}
-	T & at(size_t index)
+	T & at(Uint index)
 	{
-		if (0 <= index && index < length)
+		if (0 <= (size_t)index && (size_t)index < length)
 			return arr[index];
 		else
 			throw std::out_of_range();
 	}
-	const T& at(size_t index) const
+	const T& at(Uint index) const
 	{
-		if (0 <= index && index < length)
+		if (0 <= (size_t)index && (size_t)index < length)
 			return arr[index];
 		else
 			throw std::out_of_range();
@@ -962,7 +1010,7 @@ public:
 
 	/*여기부터 반복자 정의입니다.*/
 	//순차 반복자입니다.
-	class iterator
+	class iterator : public Object
 	{
 	private:
 		mutable T* ptr = nullptr;
@@ -1024,7 +1072,7 @@ public:
 	};
 
 	//역순 반복자입니다.
-	class reverse_iterator
+	class reverse_iterator : public Object
 	{
 	private:
 		mutable T* ptr = nullptr;
@@ -1079,7 +1127,7 @@ public:
 	};
 
 	//상수 순차 반복자입니다.
-	class const_iterator
+	class const_iterator : public Object
 	{
 	private:
 		mutable const T* ptr = nullptr;
@@ -1130,7 +1178,7 @@ public:
 	};
 
 	//상수 역순 반복자입니다.
-	class const_reverse_iterator
+	class const_reverse_iterator : public Object
 	{
 	private:
 		mutable const T* ptr = nullptr;
@@ -1184,7 +1232,7 @@ public:
 #include <functional>
 
 template <class R, class... Args>
-class FuncType : public Object, public Collection
+class FuncType : public Object
 {
 private:
 	std::function<R(Args...)> func;	
