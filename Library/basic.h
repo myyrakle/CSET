@@ -279,6 +279,16 @@ public:
 private:
 	string_t value;
 public:
+operator std::wstring() const
+{
+	std::wstring temp(value.length());
+
+	for(int i=0; i<value.length();i++)
+		temp[i]=(const wchar_t&)value[i];
+
+	return temp;
+}
+public:
 	String(const wchar_t* str)
 	{
 		const int len = std::wcslen(str);
