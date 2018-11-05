@@ -1,7 +1,3 @@
-#pragma once
-
-#pragma once
-
 #include <utility>
 #include <string>
 #include <stdint.h>
