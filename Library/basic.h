@@ -800,7 +800,7 @@ public:
 	{
 		return arr;
 	}
-	size_t length() const //길이 반환
+	Uint length() const //길이 반환
 	{
 		return _length;
 	}
