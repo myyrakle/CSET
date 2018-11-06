@@ -1,4 +1,4 @@
-﻿#include <utility>
+#include <utility>
 #include <string>
 #include <stdint.h>
 #include <vector>
@@ -38,6 +38,22 @@ template <class T>
 class Box; //소유권 기반 스마트포인터
 template <class T>
 class RcBox; //레퍼런스 카운팅 스마트포인터
+
+class Collection;
+
+template <class T>
+class Indexable;
+
+class Sortable;
+
+template <class T>
+class IArray;
+
+template <size_t Length, class T>
+class Array;
+
+template <class T>
+class DynamicArray;
 
 //class FuncType;
 
@@ -458,9 +474,9 @@ public:
 class Range : public Object
 {
 private:
-	int head;
-	int current_value = 0;
-	int tail;
+	Int head;
+	Int current_value = 0;
+	Int tail;
 public:
 	class iterator : public Object
 	{
@@ -488,13 +504,13 @@ public:
 			return *this;
 		}
 		iterator operator++(int) { return this->operator++(); } //위임
-		int& operator*() { return obj->current_value; }
-		const int& operator*() const { return obj->current_value; }
-		bool operator==(const iterator& rhs)
+		Int& operator*() { return obj->current_value; }
+		const Int& operator*() const { return obj->current_value; }
+		Bool operator==(const iterator& rhs)
 		{
 			return this->obj == rhs.obj;
 		}
-		bool operator!=(const iterator& rhs)
+		Bool operator!=(const iterator& rhs)
 		{
 			return this->obj != rhs.obj;
 		}
@@ -525,13 +541,13 @@ public:
 			return *this;
 		}
 		reverse_iterator operator++(int) { return this->operator++(); } //위임
-		int& operator*() { return obj->current_value; }
-		const int& operator*() const { return obj->current_value; }
-		bool operator==(const reverse_iterator& rhs)
+		Int& operator*() { return obj->current_value; }
+		const Int& operator*() const { return obj->current_value; }
+		Bool operator==(const reverse_iterator& rhs)
 		{
 			return this->obj == rhs.obj;
 		}
-		bool operator!=(const reverse_iterator& rhs)
+		Bool operator!=(const reverse_iterator& rhs)
 		{
 			return this->obj != rhs.obj;
 		}
@@ -559,7 +575,7 @@ public: //역순 반복자
 public:
 	Range() = delete;
 	virtual ~Range() = default;
-	Range(int _lhs, int _rhs) : head(_lhs), tail(_rhs) {}
+	Range(Int _lhs, Int _rhs) : head(_lhs), tail(_rhs) {}
 };
 
 
@@ -584,6 +600,7 @@ inline Uint Float_Basic<FloatType>::get_size() const
 {
 	return Uint(sizeof(value));
 }
+/*get_size 오버라이드*/
 
 /*get_typename 오버라이드*/
 inline String Object::get_typename() const
@@ -612,7 +629,7 @@ inline String Float_Basic<FloatType>::get_typename() const
 {
 	return String(L"Float");
 }
-
+/*get_typename 오버라이드*/
 
 /*to_string 오버라이드*/
 
@@ -643,17 +660,36 @@ inline String Float_Basic<FloatType>::to_string() const
 	return String(std::to_wstring(value));
 }
 
+/*to_string 오버라이드*/
 
+
+
+//컬렉션 인터페이스
 class Collection : public Object
 {};
 
+class Sortable : public Collection
+{
+	virtual void sort() = 0;
+	virtual void rsort() = 0;
+	virtual Bool is_sorted() const = 0;
+	virtual Bool is_rsorted() const = 0;
+};
+
 template <class T>
-class IArray : public Collection
+class Indexable : public Collection
+{
+	virtual T& operator[](Uint index) = 0;
+	virtual const T& operator[](Uint index) const = 0;
+};
+
+template <class T>
+class IArray : public Sortable, public Indexable<T>
 {
 public:
-	virtual Uint length() const=0;
-	virtual T& operator[](Uint)=0;
-	virtual const T& operator[](Uint) const=0;
+	virtual Uint length() const = 0;
+	virtual Bool is_empty() const = 0;
+	virtual Bool is_not_empty() const =0;
 };
 
 
@@ -661,8 +697,6 @@ public:
 #include <algorithm>
 #include <array>
 
-template <size_t Length, class T>
-class Array;
 
 template <size_t Length, class T>
 class Array : public IArray<T>
@@ -677,6 +711,23 @@ public:
 	constexpr Bool is_empty() const
 	{
 		return value.empty();
+	}
+public:
+	void sort()
+	{
+		std::sort(value.begin(), value.end());
+	}
+	void rsort()
+	{
+		std::sort(value.begin(), value.end(), std::greater<T>);
+	}
+	Bool is_sorted() const
+	{
+		std::is_sorted(value.begin(), value.end());
+	}
+	Bool is_rsorted() const
+	{
+		std::is_sorted(value.begin(), value.end(), std::greater<T>);
 	}
 public: //액세스
 	T& operator[](Uint index)
@@ -728,11 +779,6 @@ public:
 	{ return value.rend(); }
 };
 
-template <class T>
-class DynamicArray;
-
-template <class T>
-using dynamic_array = DynamicArray<T>;
 
 template <class T>
 class DynamicArray : public IArray<T>
@@ -907,11 +953,11 @@ public: /*탐색/확인*/
 			if (arr[i] == value) return i;
 		return -1;
 	}
-	bool empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
+	bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
 	{
 		return length == 0;
 	}
-	bool not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
+	bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
 	{
 		return length != 0;
 	}
