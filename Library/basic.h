@@ -10,7 +10,7 @@ class String; //문자열 타입
 class Bool; //논리 타입
 class Byte; //바이트 타입
 
-			//실수 타입
+//실수 타입
 template<class FloatType>
 class Float_Basic;
 using Float = Float_Basic<float>;
@@ -39,23 +39,31 @@ class Box; //소유권 기반 스마트포인터
 template <class T>
 class RcBox; //레퍼런스 카운팅 스마트포인터
 
+//컬렉션 최상위 클래스
 class Collection;
 
+//인덱싱이 가능한가?
 template <class T>
 class Indexable;
 
+//소팅이 가능한가?
 class Sortable;
 
+//배열, 동적배열, 벡터 공통 인터페이스
 template <class T>
 class IArray;
 
+//정적배열
 template <size_t Length, class T>
 class Array;
 
+//동적배열
 template <class T>
 class DynamicArray;
 
-//class FuncType;
+//함수 
+template <class R, class ...Args>
+class FuncType;
 
 
 //최상위 클래스입니다.
