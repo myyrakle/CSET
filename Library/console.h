@@ -1,44 +1,41 @@
-#pragma once
-#include "basic.h"
-
-//console ¸ğµâÀÔ´Ï´Ù,
-#include <iostream>
+//console ëª¨ë“ˆì…ë‹ˆë‹¤,
+#include <cstdio>
 
 namespace console
 {
-	//°³Çà¸¸ ÇÕ´Ï´Ù.
+	//ê°œí–‰ë§Œ í•©ë‹ˆë‹¤.
 	void putline() { putchar('\n'); }
 
-	//¹®ÀÚ¿­À» Ãâ·ÂÇÕ´Ï´Ù.
+	//ë¬¸ìì—´ì„ ì¶œë ¥í•©ë‹ˆë‹¤.
 	void put(const String& val) { wprintf(L"%s", ((std::wstring)val).c_str()); }
 	void putline(const String& val) { put(val); putline(); }
 
-	//Á¤¼ö¸¦ Ãâ·ÂÇÕ´Ï´Ù.
+	//ì •ìˆ˜ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.
 	template<class IntType>
 	void put(Int_Basic<IntType> val) { printf("%d", (IntType)val); }
 	template<class IntType>
 	void putline(Int_Basic<IntType> val) { put(val); putline(); }
 
-	//´ÜÀÏ ¹®ÀÚ¸¦ Ãâ·ÂÇÕ´Ï´Ù.
+	//ë‹¨ì¼ ë¬¸ìë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.
 	void put(Char val) { putwchar((wchar_t)val); }
 	void putline(Char val) { put(val); putline(); }
 
-	//½Ç¼ö¸¦ Ãâ·ÂÇÕ´Ï´Ù.
+	//ì‹¤ìˆ˜ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.
 	template<class FloatType>
 	void put(Float_Basic<FloatType> val) { printf("%f", (float)val); }
 	template<class FloatType>
 	void putline(Float_Basic<FloatType> val) { put(val); putline(); }
 
-	//³í¸®¸¦ Ãâ·ÂÇÕ´Ï´Ù.
+	//ë…¼ë¦¬ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.
 	void put(Bool val) { val ? printf("true") : printf("false"); }
 	void putline(Bool val) { put(val); putline(); }
 
-	//¹öÆÛ Á¤¸®
+	//ë²„í¼ ì •ë¦¬
 	void flush_out() { fflush(stdout); }
 	void flush_in() { while (getchar() != EOF); }
 
 
-	//°³Çà´ÜÀ§·Î ¹®ÀÚ¿­ ÀÔ·Â
+	//ê°œí–‰ë‹¨ìœ„ë¡œ ë¬¸ìì—´ ì…ë ¥
 	String getline() 
 	{ 
 		String temp; 
@@ -46,7 +43,7 @@ namespace console
 		return temp; 
 	}
 
-	//¿£ÅÍ'¸¸' µé¾î¿Ã¶§±îÁö °è¼Ó ÀÔ·Â
+	//ì—”í„°'ë§Œ' ë“¤ì–´ì˜¬ë•Œê¹Œì§€ ê³„ì† ì…ë ¥
 //#include <list>
 //#include <cwchar>
 //	std::list<String> getlines()
@@ -64,7 +61,7 @@ namespace console
 //				else
 //					str += c;
 //			}
-//			if (str == String(L"")) //°³Çà¸¸ µé¾î¿À¸é Á¾·á
+//			if (str == String(L"")) //ê°œí–‰ë§Œ ë“¤ì–´ì˜¤ë©´ ì¢…ë£Œ
 //				return lines;
 //			else
 //			{
@@ -75,7 +72,7 @@ namespace console
 //		
 //	}
 
-	//È­ÀÌÆ®½ºÆäÀÌ½º ´ÜÀ§·Î ¹®ÀÚ¿­ ÀÔ·Â
+	//í™”ì´íŠ¸ìŠ¤í˜ì´ìŠ¤ ë‹¨ìœ„ë¡œ ë¬¸ìì—´ ì…ë ¥
 	String getword() 
 	{ 
 		String temp; 
@@ -83,30 +80,30 @@ namespace console
 		return temp;
 	}
 
-	//´ÜÀÏ ¹®ÀÚ ÀÔ·Â
+	//ë‹¨ì¼ ë¬¸ì ì…ë ¥
 	Char getc() 
 	{ 
 		return Char(wchar_t(getwchar()));
 	}
 
-	//Á¤¼ö ÀÔ·Â
+	//ì •ìˆ˜ ì…ë ¥
 	void get(Int& value) { wscanf(L"%d", &(int&)value); }
 	void get(Uint& value) { wscanf(L"%u", &(unsigned int&)value); }
 
-	//¹®ÀÚ ÀÔ·Â
+	//ë¬¸ì ì…ë ¥
 	void get(Char& value) { wscanf(L"%c", &(wchar_t&)value); }
 
-	//½Ç¼ö ÀÔ·Â
+	//ì‹¤ìˆ˜ ì…ë ¥
 	void get(Float& value) { wscanf(L"%f", &(float&)value); }
 	void get(Double& value) { wscanf(L"%lf", &(double&)value); }
 	void get(Ldouble& value) { wscanf(L"%lf", &(long double&)value); }
 
-	//È­¸éÀ» Ã»¼ÒÇÕ´Ï´Ù.
+	//í™”ë©´ì„ ì²­ì†Œí•©ë‹ˆë‹¤.
 	void clear() { system("cls"); }
 
-	//ÄÜ¼ÖÀ» ´ë±â½ÃÅµ´Ï´Ù.
+	//ì½˜ì†”ì„ ëŒ€ê¸°ì‹œí‚µë‹ˆë‹¤.
 	void pause() { system("pause"); }
 
-	//¹é½ºÆäÀÌ½º¸¦ ÀÔ·ÂÇÕ´Ï´Ù.
+	//ë°±ìŠ¤í˜ì´ìŠ¤ë¥¼ ì…ë ¥í•©ë‹ˆë‹¤.
 	void backspace() { putchar('\b'); }
 }
