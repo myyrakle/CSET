@@ -5,8 +5,10 @@
 
 
 class Object; //최상위 클래스
+using object = Object;
 class Char; //문자 타입
 class String; //문자열 타입
+using string = String;
 class Bool; //논리 타입
 class Byte; //바이트 타입
 
@@ -15,23 +17,24 @@ template<class FloatType>
 class Float_Basic;
 using Float = Float_Basic<float>;
 using Double = Float_Basic<double>;
-using Ldouble = Float_Basic<long double>;
+using Ldouble = Float_Basic<long double>; using ldouble = Ldouble;
+
 
 //정수 타입
 template<class IntType>
 class Int_Basic;
 using Int = Int_Basic<int>;
-using Uint = Int_Basic<unsigned int>;
-using Int8 = Int_Basic<int8_t>;
-using Int16 = Int_Basic<int16_t>;
-using Int32 = Int_Basic<int32_t>;
-using Int64 = Int_Basic<int64_t>;
-using Uint8 = Int_Basic<uint8_t>;
-using Uint16 = Int_Basic<uint16_t>;
-using Uint32 = Int_Basic<uint32_t>;
-using Uint64 = Int_Basic<uint64_t>;
+using Uint = Int_Basic<unsigned int>; using uint= Uint;
+using Int8 = Int_Basic<int8_t>; using int8= Int8;
+using Int16 = Int_Basic<int16_t>; using int16=Int16;
+using Int32 = Int_Basic<int32_t>; using int32=Int32;
+using Int64 = Int_Basic<int64_t>; using int64=Int64;
+using Uint8 = Int_Basic<uint8_t>; using uint8 = Uint8
+using Uint16 = Int_Basic<uint16_t>; using uint16 = Uint16;
+using Uint32 = Int_Basic<uint32_t>; using uint32 =Uint32;
+using Uint64 = Int_Basic<uint64_t>; using uint64=Uint64;
 
-class Range; //범위 표현 컨테이너
+class Range; //범위 표현 컨테이너 
 class Nullable; //옵셔널
 
 template <class T>
@@ -674,7 +677,10 @@ inline String Float_Basic<FloatType>::to_string() const
 
 //컬렉션 인터페이스
 class Collection : public Object
-{};
+{
+	Bool is_empty() const =0;
+	Bool is_not_empty() const =0;
+};
 
 class Sortable : public Collection
 {
@@ -719,6 +725,10 @@ public:
 	constexpr Bool is_empty() const
 	{
 		return value.empty();
+	}
+	constexpr Bool is_not_empty() const
+	{
+		return !value.empty();
 	}
 public:
 	void sort()
@@ -955,27 +965,27 @@ public: /*탐색/확인*/
 
 		return const_iterator(arr + _length);
 	}
-	size_t find_index(const T& value) const //탐색 후 위치 인덱스 반환
+	Uint find_index(const T& value) const //탐색 후 위치 인덱스 반환
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return i;
 		return -1;
 	}
-	bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
+	Bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
 	{
 		return length == 0;
 	}
-	bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
+	Bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
 	{
 		return length != 0;
 	}
-	bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
+	Bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return true;
 		return false;
 	}
-	size_t count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
+	Uint count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
 	{
 		int c = 0;
 		for (int i = 0; i < _length; i++)
@@ -991,11 +1001,11 @@ public: //정렬
 	{
 		std::sort<T*>(arr, arr + _length, std::greater<T>());
 	}
-	bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
+	Bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted<T*>(arr, arr + _length);
 	}
-	bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
+	Bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted<T*>(arr, arr + _length, std::greater<T>());
 	}
