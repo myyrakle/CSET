@@ -37,7 +37,7 @@ private: //에러 로그용
 
 public: 
 	Handler(const std::wstring original_);
-	Handler() = default;
+	Handler() = delete;
 	virtual ~Handler() = default;
 public:
 	Handler(const Handler&) = delete;

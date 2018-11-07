@@ -23,7 +23,7 @@ namespace keywords
 	//types
 
 	//상수
-	constexpr auto null = nullptr;
+	constexpr auto NULL_ = L"null";
 	constexpr auto TRUE_ = L"true";
 	constexpr auto FALSE_ = L"false";
 	//상수

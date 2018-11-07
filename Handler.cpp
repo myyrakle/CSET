@@ -28,18 +28,13 @@ void Handler::run()
 
 				//변환작업을 수행합니다.
 				this->interpreter.interpret(tokens);
-
-				this->builder.add_file(this->_original_filepath);
 			}
 		}
 		this->current_file_inputstream.close();
-
-		this->builder.set_original_filepath(_original_filepath);
-		this->builder.add_file(_original_filepath + L"\\temp\\temp.cpp");
-		this->builder.build();
 	}
-	//compiler.add_file(original_filepath + L"\\temp\\temp.cpp");
-	//compiler.compile();
+	this->builder.set_original_filepath(_original_filepath);
+	this->builder.add_file(_original_filepath + L"\\temp\\temp.cpp");
+	this->builder.build();
 }
 
 bool Handler::readable() const
@@ -49,6 +44,8 @@ bool Handler::readable() const
 
 std::queue<std::wstring>&& Handler::read_line_then_tokenize()
 {
+	line_number++;
+
 	//한줄 읽어옵니다.
 	auto line = this->getline();
 	//토큰화합니다.

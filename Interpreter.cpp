@@ -27,6 +27,24 @@ void Interpreter::interpret(std::queue<std::wstring>& tokens)
 
 void Interpreter::do_import(const std::wstring& module_name)
 {
+	if (module_name == L"gui") //종속성 체크
+	{
+		caller->builder.add_file(caller->_original_filepath
+			+ L"Library\\SFML\\lib\\sfml-window-s-d.lib");
+		caller->builder.add_file(caller->_original_filepath
+			+ L"Library\\SFML\\lib\\sfml-graphics-s-d.lib");
+	}
+	else if (module_name == L"audio")
+	{
+		caller->builder.add_file(caller->_original_filepath
+			+ L"Library\\SFML\\lib\\sfml-audio-s-d.lib");
+	}
+	else if (module_name == L"netword")
+	{
+		caller->builder.add_file(caller->_original_filepath
+			+ L"Library\\SFML\\lib\\sfml-network-s-d.lib");
+	}
+
 	//Library 경로 모듈 읽어넣음
 	std::wstring module_path = caller->_original_filepath + L"\\Library\\" 
 		+ module_name + L".h";
@@ -48,6 +66,64 @@ void Interpreter::do_import(const std::wstring& module_name)
 	caller->headers += L"\n\n";
 
 	read_module.close();
+}
+
+bool Interpreter::is_keyword(const std::wstring & word) const
+{
+	if (word == keywords::BOOL ||
+		word == keywords::BYTE ||
+		word == keywords::ALIAS ||
+		word == keywords::BREAK ||
+		word == keywords::CASE ||
+		word == keywords::CHAR ||
+		word == keywords::CLASS ||
+		word == keywords::CONSTFUNC ||
+		word == keywords::CONST_ ||
+		word == keywords::CONTINUE ||
+		word == keywords::DOUBLE ||
+		word == keywords::ELSE ||
+		word == keywords::ENUM ||
+		word == keywords::FALSE_ ||
+		word == keywords::FLOAT ||
+		word == keywords::FOR ||
+		word == keywords::FUNC ||
+		word == keywords::FUNCTYPE ||
+		word == keywords::IF ||
+		word == keywords::IMPORT ||
+		word == keywords::INT ||
+		word == keywords::INT16 ||
+		word == keywords::INT32 ||
+		word == keywords::INT64 ||
+		word == keywords::INT8 ||
+		word == keywords::IN_ ||
+		word == keywords::LABEL |
+		word == keywords::LITERAL ||
+		word == keywords::MATCH ||
+		word == keywords::MUT ||
+		word == keywords::NAMESPACE ||
+		word == keywords::NEW ||
+		word == keywords::NULL_ ||
+		word == keywords::OBJECT ||
+		word == keywords::PRIVATE ||
+		word == keywords::PROTECTED ||
+		word == keywords::PUBLIC ||
+		word == keywords::RCNEW ||
+		word == keywords::RFOR ||
+		word == keywords::SIZEOF ||
+		word == keywords::STATIC ||
+		word == keywords::STRING ||
+		word == keywords::SWITCH ||
+		word == keywords::TRUE_ ||
+		word == keywords::UINT ||
+		word == keywords::UINT16 ||
+		word == keywords::UINT32 ||
+		word == keywords::UINT64 ||
+		word == keywords::UINT8 ||
+		word == keywords::USING ||
+		word == keywords::WHILE)
+		return true;
+	else
+		return false;
 }
 
 void Interpreter::finish()
@@ -77,7 +153,7 @@ void Interpreter::convert_unused_keywords(std::wstring & word)
 void Interpreter::print_error(wstring_view log)
 {
 	wprintf(L"파일명 %s\n",caller->current_filename.data());
-	wprintf(L"라인 : %d\n", this->line_num);
+	wprintf(L"라인 : %d\n", caller->line_number);
 	wprintf(L"%s", log.data());
 	
 	this->finish();
@@ -87,7 +163,6 @@ void Interpreter::print_error(wstring_view log)
 
 void Interpreter::interpret_global(std::queue<std::wstring>& tokens)
 {
-	std::wcout << tokens.front() << std::endl;
 	//func 키워드 만날 경우
 	if (tokens.front() == keywords::FUNC)
 	{
@@ -170,7 +245,7 @@ void Interpreter::interpret_local(std::queue<std::wstring>& tokens, int unclosed
 				명령행_인자명[i] = 인자들[i];
 			*/
 			//caller->bodys += L"auto ___strlen = [](const char* str){ size_t i=0; for(;s[i]!='\0';i++); return i; };";
-			caller->bodys += L"DynamicArray<std::wstring> "; caller->bodys += cmdline_arg_name;
+			caller->bodys += L"DynamicArray<String> "; caller->bodys += cmdline_arg_name;
 			caller->bodys += '('; caller->bodys += TEMP_argc; caller->bodys += L");\n";
 
 			caller->bodys += L"for(int i=0;i<"; caller->bodys += TEMP_argc; caller->bodys += L";i++)\n\t";
@@ -182,28 +257,46 @@ void Interpreter::interpret_local(std::queue<std::wstring>& tokens, int unclosed
 	}
 
 	//중괄호 다 닫힐때까지 루프
-	while (unclosed_bracket > 0) 
+	while (true) 
 	{
-		if (tokens.empty())
+		while (tokens.empty())
+		{
 			if (caller->readable())
 				tokens = std::move(caller->read_line_then_tokenize());
+			else
+				return;
 
-		if (tokens.empty())
-		{
+			if (!this->pre_word.empty())
+				caller->bodys += pre_word;
+
+			//흠..
 			caller->bodys += L";\n";
+			if (straight)
+				caller->bodys += L"}}";
 		}
 
 		if (tokens.front() == L"{")
 		{
 			unclosed_bracket++;
 			caller->bodys += tokens.front(); tokens.pop();
-			continue;
+			caller->bodys += L'\n';
+			//continue;
 		}
 		else if (tokens.front() == L"}")
 		{
 			unclosed_bracket--;
+		
+			caller->bodys += L";\n";
 			caller->bodys += tokens.front(); tokens.pop();
-			continue;
+			caller->bodys += L'\n';
+
+			
+
+			/*임시방편*/
+
+			/*임시방편*/
+
+			//continue;
 		}
 
 		//const나 mut, literal 키워드일 경우
@@ -214,7 +307,8 @@ void Interpreter::interpret_local(std::queue<std::wstring>& tokens, int unclosed
 			tokens.pop();
 		}
 
-		else if (tokens.front() == keywords::CONST_ || tokens.front() == keywords::MUT
+		else if (tokens.front() == keywords::CONST_ 
+			|| tokens.front() == keywords::MUT
 			|| tokens.front() == keywords::LITERAL)
 		{
 			this->interpret_variable(tokens);
@@ -233,17 +327,72 @@ void Interpreter::interpret_local(std::queue<std::wstring>& tokens, int unclosed
 
 		else if (tokens.front() == L"$")
 		{
-			caller->bodys += L"[&]";
+			state = InterpreterState::In_LAMBDA;
+			caller->bodys += L"[&]"; tokens.pop();
 			this->interpret_lambda(tokens);
 		}
 
-		//To do
-		else
+		else if (tokens.front() == L"for")
 		{
-			caller->bodys += tokens.front(); tokens.pop();
+			this->interpret_for(tokens);
+
+			while (tokens.empty())
+			{
+				if (caller->readable())
+					tokens = std::move(caller->read_line_then_tokenize());
+				else
+					return;
+			}
+		}
+
+		else if (tokens.front() == L"rfor")
+		{
+			this->print_error(L"rfor는 아직 미완성이에요");
+			this->interpret_rfor(tokens);
+
+			while (tokens.empty())
+			{
+				if (caller->readable())
+					tokens = std::move(caller->read_line_then_tokenize());
+				else
+					return;
+			}
+
+			if (tokens.front() == L"{")
+			{
+				//Todo
+			}
+			else
+			{
+				straight = true;
+			}
+		}
+
+		else if(tokens.front() ==L"while")
+		{ 
+			this->interpret_while(tokens);
+		}
+
+		else if (tokens.front() == L"if")
+		{
+			this->interpret_if(tokens);
+		}
+
+		else if (tokens.front() == L"else")
+		{
+			this->interpret_if(tokens);
+		}
+
+		else //나머지는 그냥
+		{
+			interpret_check_Range(tokens);
+		}
+
+		if (unclosed_bracket == 0)
+		{
+			break;
 		}
 	}
-
 	return;
 }
 
@@ -264,11 +413,10 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 
 	//파라미터 체크
 	if (tokens.front() != L"(")
-		this->print_error(L"여는괄호 어딨어요");
+		this->print_error(L"여는괄호 어딨어요. 이게 나오네요-> "+tokens.front());
 	else
 	{
-		func_signature += tokens.front();
-		tokens.pop();
+		func_signature+=tokens.front(); tokens.pop();
 	}
 
 	/*	main 함수	*/
@@ -309,6 +457,7 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 
 			if (tokens.front() != L")")
 				this->print_error(L"닫는괄호 어디갔어요?");
+			tokens.pop();
 
 			func_signature += L"int ";
 			func_signature += TEMP_argc;
@@ -316,21 +465,21 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 			func_signature += TEMP_args;
 			func_signature += L')';
 
-			if(tokens.empty())
+			if(tokens.empty()||tokens.front()==L"{")
 			{
-				func_signature += L"-> int";
+				func_signature += L"->int";
 			}
 			else
 			{
 				if (tokens.front() == L"->")
 					func_signature += L"->", tokens.pop();
 				else
-					this->print_error(L"반환타입 어딨어요");
+					this->print_error(L"반환타입 어딨어요"+tokens.front()+L"흠");
 
 				if (tokens.front() == L"int")
 					func_signature += L"int", tokens.pop();
 				else
-					this->print_error(L"main 함수 반환형은 무조건 int에요");
+					this->print_error(L"main 함수 반환형은 무조건 int나 void에요");
 			}
 		}
 	}
@@ -340,30 +489,32 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 	{
 		while (tokens.front() != L")")
 		{
-			//한정자
+			bool is_mut = false;
+
 			if (tokens.front() == keywords::MUT)
-				tokens.pop();
+				tokens.pop(), is_mut = true;
+
+			//한정자
 			else if (tokens.front() == keywords::CONST_)
 			{
-				func_signature += L"const ";
 				tokens.pop();
 			}
-			else //디폴트 const
+			
+			if (!is_mut)
 				func_signature += L"const ";
 
 			//변수명 저장
-			auto var_name = tokens.front();
-			tokens.pop();
+			auto var_name = tokens.front(); tokens.pop();
 
 			if (tokens.front() != L":")
-				this->print_error(L"파라미터에 콜론 어디갔어요?");
-			tokens.pop();
+				this->print_error(L"파라미터에 콜론 어디갔어요? <- "+tokens.front());
+			else
+				tokens.pop();
+
+			func_signature += interpret_types(tokens);
 
 			//타입
-			func_signature += tokens.front();
-			func_signature += ' ';
-			func_signature += var_name;
-			tokens.pop();
+			func_signature += L" " + var_name;
 
 			//콜론
 			if (tokens.front() == L",")
@@ -371,30 +522,38 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 				func_signature += tokens.front();
 				tokens.pop();
 			}
+			else
+			{
+				if (tokens.front() != L")")
+					print_error(L"뭐야 이게 <-"+tokens.front());
+			}
 		}
 
-		func_signature += tokens.front();  tokens.pop(); // ) 붙임
+		func_signature += tokens.front();  tokens.pop(); // ) 붙임	
 
-	//리턴타입
+		while (tokens.empty())
+			if (caller->readable())
+				tokens = std::move(caller->read_line_then_tokenize());
+
 		if (tokens.empty() || tokens.front() == L"{") //없으면 void
 			func_signature += L"->void";
-
 		else if (tokens.front() == L"->")
 		{
-			func_signature += tokens.front();
-			tokens.pop();
+			func_signature += tokens.front(); tokens.pop();
+			func_signature += this->interpret_types(tokens);
 		}
 		else
 			this->print_error(L"리턴타입 부분이 이상한거같은데");
-
-		caller->prototypes += func_signature;
-		caller->prototypes += L";\n";
-		caller->bodys += func_signature;
-		caller->bodys += '\n';
 	}
-	
-	//
-	if (tokens.empty())
+
+	caller->headers += func_signature;
+	caller->headers += L";\n";
+	caller->prototypes += func_signature;
+	caller->prototypes += L";\n";
+	caller->bodys += func_signature;
+	caller->bodys += '\n';
+
+	while (tokens.empty())
 		if (caller->readable())
 			tokens = std::move(caller->read_line_then_tokenize());
 
@@ -403,129 +562,290 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 		caller->bodys += tokens.front(); tokens.pop();
 		this->interpret_local(tokens,1);
 	}
-
 	return;
 }
 
+void Interpreter::interpret_check_Range(std::queue<std::wstring>& tokens)
+{
+	if (tokens.front() == L"(")
+	{
+		unclosed_small_bracket++;
+	}
+	else if (tokens.front() == L")")
+	{
+		unclosed_small_bracket--;
+	}
+
+	if (in_range)
+	{
+		post_word += tokens.front(); tokens.pop();
+
+		if (unclosed_small_bracket == 0)
+		{
+			std::wstring temp = L"Range(";
+			temp += pre_word;
+			temp += L',';
+			temp += post_word;
+			temp += L')';
+
+			pre_word.clear();
+			post_word.clear();
+			in_range = false;
+
+			caller->bodys += temp;
+		}
+	}
+
+	//기본동작
+	else
+	{
+		//.. 범위연산자 대비해서 operand1 저장		
+		pre_word += tokens.front(); tokens.pop(); //뽑아놓고
+
+		if (unclosed_small_bracket == 0)
+		{
+			if (tokens.front() == L"..") //..인지 검사
+			{
+				in_range = true;
+				tokens.pop(); //범위연산자 처리문으로 이동
+			}
+			else
+			{
+				caller->bodys += pre_word;
+				pre_word.clear(); //아니면 그냥 넘김
+			}
+		}
+	}
+}
+
+/*갈아치울 필요*/
 void Interpreter::interpret_lambda(std::queue<std::wstring>& tokens)
 {
 	if (tokens.front() == L"(") //파라미터 있을 경우
 	{
 		//interpret_function 복붙
 
-		std::wstring func_signature;
+		std::wstring lambda_signature = L"("; tokens.pop();
 
 		while (tokens.front() != L")")
 		{
-			//한정자
+			bool is_mut = false;
+
 			if (tokens.front() == keywords::MUT)
-				tokens.pop();
+				tokens.pop(), is_mut = true;
+
+			//한정자
 			else if (tokens.front() == keywords::CONST_)
 			{
-				func_signature += L"const ";
 				tokens.pop();
 			}
-			else //디폴트 const
-				func_signature += L"const ";
+
+			if (!is_mut)
+				lambda_signature += L"const ";
 
 			//변수명 저장
-			auto var_name = tokens.front();
-			tokens.pop();
+			auto var_name = tokens.front(); tokens.pop();
 
 			if (tokens.front() != L":")
 				this->print_error(L"파라미터에 콜론 어디갔어요?");
 			tokens.pop();
 
-			//타입
-			func_signature += tokens.front();
-			func_signature += ' ';
-			func_signature += var_name;
-			tokens.pop();
+			lambda_signature += interpret_types(tokens);
 
+			//타입
+			lambda_signature += ' ';
+			lambda_signature += var_name;
+			
 			//콜론
 			if (tokens.front() == L",")
 			{
-				func_signature += tokens.front();
+				lambda_signature += tokens.front();
 				tokens.pop();
 			}
+			else
+				print_error(L"뭐야 이게" + tokens.front());
 		}
 
-		func_signature += tokens.front();  tokens.pop(); // ) 붙임
+		lambda_signature += tokens.front();  tokens.pop(); // ) 붙임
 
 	//리턴타입
-		if (tokens.empty() || tokens.front() == L"{") //없으면 void
-			func_signature += L"->void";
+		while (tokens.empty())
+			if(caller->readable())
+				tokens = std::move(caller->read_line_then_tokenize());
 
+		if(tokens.front() == L"{") //없으면 void
+			lambda_signature += L"->void";
 		else if (tokens.front() == L"->")
 		{
-			func_signature += tokens.front();
-			tokens.pop();
+			lambda_signature += tokens.front(); tokens.pop();
+			lambda_signature += this->interpret_types(tokens);
 		}
 		else
 			this->print_error(L"리턴타입 부분이 이상한거같은데");
 
-		caller->prototypes += func_signature;
-		caller->prototypes += L";\n";
-		caller->bodys += func_signature;
-		caller->bodys += '\n'; while (tokens.front() != L")")
-		{
-			//한정자
-			if (tokens.front() == keywords::MUT)
-				tokens.pop();
-			else if (tokens.front() == keywords::CONST_)
-			{
-				func_signature += L"const ";
-				tokens.pop();
-			}
-			else //디폴트 const
-				func_signature += L"const ";
-
-			//변수명 저장
-			auto var_name = tokens.front();
-			tokens.pop();
-
-			if (tokens.front() != L":")
-				this->print_error(L"파라미터에 콜론 어디갔어요?");
-			tokens.pop();
-
-			//타입
-			func_signature += tokens.front();
-			func_signature += ' ';
-			func_signature += var_name;
-			tokens.pop();
-
-			//콜론
-			if (tokens.front() == L",")
-			{
-				func_signature += tokens.front();
-				tokens.pop();
-			}
-		}
-
-		func_signature += tokens.front();  tokens.pop(); // ) 붙임
-
-	//리턴타입
-		if (tokens.empty() || tokens.front() == L"{") //없으면 void
-			func_signature += L"->void";
-
-		else if (tokens.front() == L"->")
-		{
-			func_signature += tokens.front();
-			tokens.pop();
-		}
-		else
-			this->print_error(L"리턴타입 부분이 이상한거같은데");
-
-		caller->prototypes += func_signature;
-		caller->prototypes += L";\n";
-		caller->bodys += func_signature;
+		caller->bodys += lambda_signature;
 		caller->bodys += '\n';
 	}
-	else if(tokens.front() == L"{")//파라미터 없을 경우
+	
+	if(tokens.front() == L"{")//파라미터 없을 경우
 	{
 		this->interpret_local(tokens, 1);
 	}
 }
+
+void Interpreter::interpret_for(std::queue<std::wstring>& tokens)
+{
+	caller->bodys += L"for"; tokens.pop();
+
+	if (tokens.front() != L"(")
+		this->print_error(L"for에 여는괄호 어딨어요");
+	
+	caller->bodys += tokens.front(); tokens.pop(); // ( 넣음
+
+	int unclosed_bracket = 1; //안닫힌 소괄호
+
+	//each 변수가 mutable인가?
+	bool each_is_mut = false;
+	
+	if (tokens.front() == L"mut")
+		each_is_mut = true, tokens.pop();
+	else if (tokens.front() == L"const")
+		tokens.pop();
+
+	//each 변수 체크
+	std::wstring each_name = tokens.front(); tokens.pop();
+
+	if (tokens.front() == keywords::IN_)
+	{
+		if (each_is_mut)
+			caller->bodys += L"auto&";
+		else
+			caller->bodys += L"const auto&";
+
+		caller->bodys += each_name;
+
+		caller->bodys += L":"; tokens.pop();
+	}
+	else
+	{
+		print_error(L"in 어딨어요");
+	}
+
+	if (tokens.empty())
+		print_error(L"컨테이너 어딨어요");
+
+	//닫는괄호 나올때까지 입력
+	
+	while(unclosed_bracket!=0)
+	{
+		if (tokens.front() == L"(")
+			unclosed_bracket++;
+		else if (tokens.front() == L")")
+			unclosed_bracket--;
+
+		if (unclosed_bracket == 0)
+			break;
+
+		this->interpret_check_Range(tokens);
+	}
+	caller->bodys += tokens.front(); tokens.pop();
+}
+
+/*
+{
+auto 컨테이너 = 표현식;
+for(auto i = 컨테이너.rbegin(); i!=컨테이너.rend();i++)
+...
+}
+*/
+
+/*결함투성이*/
+void Interpreter::interpret_rfor(std::queue<std::wstring>& tokens)
+{
+	caller->bodys += L"{\n"; more_bracket_in_rfor++;
+	tokens.pop(); //rfot 삭제
+
+	if (tokens.front() != L"(")
+		this->print_error(L"rfor에 여는괄호 어딨어요");
+
+	tokens.pop(); // ( 뺌
+
+	int unclosed_bracket = 1; //안닫힌 소괄호
+
+	//each 변수가 mutable인가?
+	bool each_is_mut = false;
+
+	if (tokens.front() == L"mut")
+		each_is_mut = true, tokens.pop();
+	else if (tokens.front() == L"const")
+		tokens.pop();
+
+	//each 변수 체크
+	std::wstring each_name = tokens.front(); tokens.pop();
+
+	std::wstring container_name = TEMP_name + L"__contanier";
+
+	if (tokens.front() == keywords::IN_)
+	{
+		caller->bodys += L"auto " + container_name;
+
+		tokens.pop();
+	}
+	else
+	{
+		print_error(L"in 어딨어요");
+	}
+
+	if (tokens.empty())
+		print_error(L"컨테이너 어딨어요");
+
+	//닫는괄호 나올때까지 입력
+
+	while (unclosed_bracket != 0)
+	{
+		if (tokens.front() == L"(")
+			unclosed_bracket++;
+		else if (tokens.front() == L")")
+			unclosed_bracket--;
+
+		if (unclosed_bracket == 0)
+			break;
+
+		this->interpret_check_Range(tokens);
+	}
+	tokens.pop(); // ) 제거
+	
+	auto iter_name = TEMP_name + L"__iter";
+
+	caller->bodys += L"for(auto "; caller->bodys += iter_name;
+
+	caller->bodys += '='; caller->bodys += container_name + L".rbegin(); ";
+
+	caller->bodys += iter_name; caller->bodys += L"!="; 
+	
+	caller->bodys += container_name + L"rend();";
+
+	caller->bodys += iter_name + L"++)\n";
+
+	caller->bodys += L"{\n"; more_bracket_in_rfor++;
+
+	caller->bodys += each_is_mut ? L"auto& " : L"const auto& ";
+
+	caller->bodys += each_name + L"*" + iter_name + L";\n";
+}
+
+void Interpreter::interpret_while(std::queue<std::wstring>&)
+{
+}
+
+void Interpreter::interpret_if(std::queue<std::wstring>&)
+{
+}
+
+void Interpreter::interpret_else(std::queue<std::wstring>&)
+{
+}
+
 
 std::wstring Interpreter::interpret_types(std::queue<std::wstring>& tokens)
 {
@@ -534,67 +854,76 @@ std::wstring Interpreter::interpret_types(std::queue<std::wstring>& tokens)
 
 	std::wstring type;
 
-	//타입 키워드 충돌 방지
-	if (tokens.front() == L"int")
-		type += L"Int", tokens.pop();
-	else if (tokens.front() == L"double")
-		type += L"Double", tokens.pop();
-	else if (tokens.front() == L"float")
-		type += L"Float", tokens.pop();
-	else if (tokens.front() == L"char")
-		type += L"Char", tokens.pop();
-	else if (tokens.front() == L"bool")
-		type += L"Bool", tokens.pop();
-	else
-		type += tokens.front(), tokens.pop();
-
 	std::wstring array_expr;
 	int unclosed_bracket = 0;
 
-	//배열 축약 변환
-	while(tokens.front()==L"[")
+	while (true)
 	{
-		if (tokens.front() == L"]") //dynamic_array
+		if (tokens.front() == L")" ||
+			tokens.front() == L"," ||
+			tokens.front() == L"=" ||
+			tokens.front() ==L"{")
+			break;
+
+		
+
+		//타입 키워드 충돌 방지
+		if (tokens.front() == L"int" ||
+			tokens.front() == L"double" || 
+			tokens.front() == L"float" ||
+			tokens.front() == L"char" ||
+			tokens.front() == L"bool")
 		{
-			array_expr += L"DynamicArray<"; tokens.pop();
-			unclosed_bracket++;
+			tokens.front()[0] -= ((int)'a' - (int)'A');
+			type += tokens.front(); tokens.pop();
 		}
-		else //static_array<길이, 타입>
+
+		//배열 축약 변환
+		else if(tokens.front()==L"[")
 		{
+			//static_array<길이, 타입>
 			array_expr += L"Array<";
 			array_expr += tokens.front(); tokens.pop();
 
-			if (tokens.front() == L"]")
-				tokens.pop();
-			else
-				this->print_error(L"닫는괄호 어딨어요");
-
 			unclosed_bracket++;
 		}
-	}
-	type = array_expr + type + std::wstring(unclosed_bracket, '>');
-	
-	//박스 체크
-	if (tokens.front() == L"*")
-	{
-		//아직 미구현
-	}
+		else if (tokens.front() == L"]") //dynamic_array
+		{
+			unclosed_bracket--;
+			array_expr += L"DynamicArray<"; tokens.pop();
+			
+			if (tokens.front() == L"[")
+			{
 
-	//rc 박스 체크
-	else if (tokens.front() == L"^")
-	{
-		//아직 미구현
-	}
+			}
+			else
+			{
+				type = array_expr + type + std::wstring(unclosed_bracket, '>'); //??
+			}
+		}
+			
+		//박스 체크
+		else if (tokens.front() == L"*")
+		{
+			//아직 미구현
+		}
 
-	//nullable 체크
-	else if (tokens.front() == L"?")
-	{
-		//아직 미구현
-	}
+		//rc 박스 체크
+		else if (tokens.front() == L"^")
+		{
+			//아직 미구현
+		}
 
-	else
-	{
-		type += tokens.front(); tokens.pop();
+		//nullable 체크
+		else if (tokens.front() == L"?")
+		{
+			//아직 미구현
+		}
+
+		else
+		{
+			type += tokens.front(); tokens.pop();
+		}
 	}
 
 	return type;

@@ -41,14 +41,9 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 
 	bool in_escape = false; //이스케이프 문자 구별용 플래그
 
-	//std::wcout << line[0] << std::endl;
-
-
-	for (int i = 0; line[i] != '\0'; i++)
+	for (int i = 0; i<line.length(); i++)
 	{
 		const wchar_t c = line[i];
-
-		//std::wcout << c << std::endl;
 
 		switch (flag)
 		{
@@ -71,12 +66,11 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 				break;
 
 				//화이트스페이스 처리
-			case ' ': /*case '\n':*/ case '\t':
+			case ' ': case '\n': case '\t':
 				//무시함
 				if (!word.empty())
 				{
 					tokens.push(std::move(word));
-					tokens.emplace(1, c);
 				}
 				
 				break;
@@ -85,16 +79,19 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			case '(': case ')':
 			case '{': case '}':
 			case '[': case ']':
-			case '$': case ';':
-			case ',':
+			case ';': case ',':
+			case '$':
 				if (!word.empty())
 					tokens.push(std::move(word));
 				tokens.emplace(1, c);
 				break;
 
 				//연산자 처리
-			case '+': case '-': case '|': case '&': case '=': case '<': case '>':
-				if (!word.empty()) tokens.push(std::move(word)); //일단 보내버리고
+			case '+': case '-': 
+			case '|': case '&': 
+			case '=': case '<': case '>':
+				if (!word.empty()) 
+					tokens.push(std::move(word)); //일단 보내버리고
 				if (line[i + 1] != c && line[i + 1] != '=') //2글자 연산자 아니면
 				{
 					tokens.emplace(1, c);
@@ -115,7 +112,7 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 				if (line[1] == '/') //주석기호면
 					flag = StateFlag::LINE_COMMENT;
 				else if (line[1] == '*') // 블럭단위 주석 표시. 아직 미구현
-					;
+					flag = StateFlag::BLOCK_COMMENT;
 				else if (line[1] == '=') // /=면
 				{
 					tokens.emplace(L"/=");
@@ -169,12 +166,10 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			case '0': case '1': case '2': case '3': case '4': case '5': case'6':
 			case '7': case '8': case '9':
 				word += c;
-				flag = StateFlag::NUMBER;
+				//flag = StateFlag::NUMBER;
 				break;
 
-			default: //???
-				//std::cout << "이게 수행되나" << std::endl;
-				word += c;
+			default: 
 				break;
 			}
 		} 
@@ -201,6 +196,7 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 			default: //문자/숫자가 아닌게 나오면 식별자로 분리
 				tokens.push(std::move(word));
 				flag = StateFlag::DEFAULT; //다시 진입점으로
+				i--;
 				continue;
 			}
 		}
@@ -209,6 +205,7 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 		case StateFlag::NUMBER:
 		{
 			//TODO : 읽어나가면서 .이 있으면 float로, 없으면 integer로 위임
+
 		}
 			break;
 
@@ -232,20 +229,22 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 		case StateFlag::STRING: //문자열 리터럴 처리중
 		{
 			if (c == '\\')
+			{
 				if (in_escape == false)
 				{
 					in_escape = true;
 					word += c;
 					continue;
 				}
+			}
 
-				else if (c == '\"'&&in_escape == false)
-				{
-					word += L"\")";
-					tokens.push(std::move(word));
-					flag = StateFlag::DEFAULT;
-					continue;
-				}
+			else if (c == '\"'&&in_escape == false)
+			{
+				word += L"\")";
+				tokens.push(std::move(word));
+				flag = StateFlag::DEFAULT;
+				continue;
+			}
 
 			if (in_escape == true)
 				in_escape = false;
@@ -257,20 +256,22 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 		case StateFlag::CHAR: //문자 리터럴 처리중
 		{
 			if (c == '\\')
+			{
 				if (in_escape == false)
 				{
 					in_escape = true;
 					word += c;
 					continue;
 				}
+			}
 
-				else if (c == '\"'&&in_escape == false)
-				{
-					word += L"\')";
-					tokens.push(std::move(word));
-					flag = StateFlag::DEFAULT;
-					continue;
-				}
+			else if (c == '\"'&&in_escape == false)
+			{
+				word += L"\')";
+				tokens.push(std::move(word));
+				flag = StateFlag::DEFAULT;
+				continue;
+			}
 
 			if (in_escape == true)
 				in_escape = false;
@@ -290,7 +291,7 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 	if (!word.empty())
 		tokens.push(std::move(word));
 
-	tokens.emplace(1, '\n');
+	//tokens.emplace(1, '\n');
 
 	return tokens;
 }
