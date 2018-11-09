@@ -29,20 +29,29 @@ void Interpreter::do_import(const std::wstring& module_name)
 {
 	if (module_name == L"gui") //종속성 체크
 	{
-		caller->builder.add_file(caller->_original_filepath
-			+ L"Library\\SFML\\lib\\sfml-window-s-d.lib");
-		caller->builder.add_file(caller->_original_filepath
-			+ L"Library\\SFML\\lib\\sfml-graphics-s-d.lib");
+		caller->builder.add_file(L"opengl32.lib");
+		caller->builder.add_file(L"winmm.lib");
+		caller->builder.add_file(L"freetype.lib");
+		caller->builder.add_file(L"sfml-window-s.lib");
+		caller->builder.add_file(L"sfml-graphics-s.lib");
+		caller->builder.add_file(L"sfml-system-s.lib");
 	}
 	else if (module_name == L"audio")
 	{
-		caller->builder.add_file(caller->_original_filepath
-			+ L"Library\\SFML\\lib\\sfml-audio-s-d.lib");
+		caller->builder.add_file(L"sfml-audio-s-d.lib");
+		caller->builder.add_file(L"openal32.lib");
+		caller->builder.add_file(L"sfml-system-s-d.lib");
+		caller->builder.add_file(L"flac.lib");
+		caller->builder.add_file(L"vorbisenc.lib");
+		caller->builder.add_file(L"vorbisfile.lib");
+		caller->builder.add_file(L"vorbis.lib");
+		caller->builder.add_file(L"ogg.lib");
 	}
-	else if (module_name == L"netword")
+	else if (module_name == L"network")
 	{
-		caller->builder.add_file(caller->_original_filepath
-			+ L"Library\\SFML\\lib\\sfml-network-s-d.lib");
+		caller->builder.add_file(L"sfml-network-s-d.lib");
+		caller->builder.add_file(L"sfml-system-s-d.lib");
+		caller->builder.add_file(L"ws2_32.lib");
 	}
 
 	//Library 경로 모듈 읽어넣음
@@ -424,7 +433,7 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 	{
 		if (tokens.front() == L")") //파라미터가 없을 경우
 		{
-
+			func_signature += L')'; tokens.pop();
 		}
 		else //파라미터가 있을 경우
 		{
@@ -437,7 +446,7 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 			}
 			else
 				this->print_error(L"타입 어디갔어요");
-			
+
 			if (tokens.front() == L"string")
 			{
 				tokens.pop();
@@ -464,23 +473,23 @@ void Interpreter::interpret_function(std::queue<std::wstring>& tokens)
 			func_signature += L",wchar_t** ";
 			func_signature += TEMP_args;
 			func_signature += L')';
+		}
 
-			if(tokens.empty()||tokens.front()==L"{")
-			{
-				func_signature += L"->int";
-			}
+		if(tokens.empty()||tokens.front()==L"{")
+		{
+			func_signature += L"->int";
+		}
+		else
+		{
+			if (tokens.front() == L"->")
+				func_signature += L"->", tokens.pop();
 			else
-			{
-				if (tokens.front() == L"->")
-					func_signature += L"->", tokens.pop();
-				else
-					this->print_error(L"반환타입 어딨어요"+tokens.front()+L"흠");
+				this->print_error(L"반환타입 어딨어요"+tokens.front()+L"흠");
 
-				if (tokens.front() == L"int")
-					func_signature += L"int", tokens.pop();
-				else
-					this->print_error(L"main 함수 반환형은 무조건 int나 void에요");
-			}
+			if (tokens.front() == L"int")
+				func_signature += L"int", tokens.pop();
+			else
+				this->print_error(L"main 함수 반환형은 무조건 int나 void에요");
 		}
 	}
 
@@ -834,16 +843,65 @@ void Interpreter::interpret_rfor(std::queue<std::wstring>& tokens)
 	caller->bodys += each_name + L"*" + iter_name + L";\n";
 }
 
-void Interpreter::interpret_while(std::queue<std::wstring>&)
+void Interpreter::interpret_while(std::queue<std::wstring>& tokens)
 {
+	caller->bodys += L"while"; tokens.pop();
+
+	if (tokens.front() != L"(")
+		this->print_error(L"while에 여는괄호 어딨어요");
+	else
+	{
+		caller->bodys += tokens.front(); tokens.pop(); // ( 넣음
+	}
+
+	int unclosed_if_bracket = 1;
+
+	while (unclosed_if_bracket != 0)
+	{
+		if (tokens.front() == L"(")
+			unclosed_if_bracket++;
+		else if (tokens.front() == L")")
+			unclosed_if_bracket--;
+
+		if (unclosed_if_bracket == 0)
+			break;
+
+		this->interpret_check_Range(tokens);
+	}
+	caller->bodys += tokens.front(); tokens.pop();
 }
 
-void Interpreter::interpret_if(std::queue<std::wstring>&)
+void Interpreter::interpret_if(std::queue<std::wstring>& tokens)
 {
+	caller->bodys += L"if"; tokens.pop();
+
+	if (tokens.front() != L"(")
+		this->print_error(L"if에 여는괄호 어딨어요");
+	else
+	{
+		caller->bodys += tokens.front(); tokens.pop(); // ( 넣음
+	}
+
+	int unclosed_if_bracket = 1;
+
+	while (unclosed_if_bracket != 0)
+	{
+		if (tokens.front() == L"(")
+			unclosed_if_bracket++;
+		else if (tokens.front() == L")")
+			unclosed_if_bracket--;
+
+		if (unclosed_if_bracket == 0)
+			break;
+
+		this->interpret_check_Range(tokens);
+	}
+	caller->bodys += tokens.front(); tokens.pop();
 }
 
-void Interpreter::interpret_else(std::queue<std::wstring>&)
+void Interpreter::interpret_else(std::queue<std::wstring>& tokens)
 {
+	caller->bodys += L"else\n"; tokens.pop();
 }
 
 
@@ -859,13 +917,13 @@ std::wstring Interpreter::interpret_types(std::queue<std::wstring>& tokens)
 
 	while (true)
 	{
-		if (tokens.front() == L")" ||
+		if (tokens.empty() ||
+			tokens.front() == L")" ||
 			tokens.front() == L"," ||
 			tokens.front() == L"=" ||
-			tokens.front() ==L"{")
+			tokens.front() ==L"{" ||
+			tokens.front() ==L";")
 			break;
-
-		
 
 		//타입 키워드 충돌 방지
 		if (tokens.front() == L"int" ||
@@ -934,11 +992,11 @@ void Interpreter::interpret_variable(std::queue<std::wstring>& tokens)
 	wstring variable_expr = L"";
 	bool has_init = false;
 
-	auto head_word = tokens.front(); tokens.pop();
+	
 
-	if (head_word == keywords::LITERAL)
+	if (tokens.front() == keywords::LITERAL)
 	{
-		variable_expr += L"constexpr auto ";
+		variable_expr += L"constexpr auto "; tokens.pop();
 
 		while (!tokens.empty())
 		{
@@ -948,16 +1006,19 @@ void Interpreter::interpret_variable(std::queue<std::wstring>& tokens)
 		}
 	}
 
-	else if (head_word == keywords::CONST_ || head_word == keywords::MUT)
+	else if (tokens.front() == keywords::CONST_ 
+		|| tokens.front() == keywords::MUT)
 	{
 		//const 여부 체크
-		if (head_word == keywords::CONST_)
-			variable_expr += keywords::CONST_, variable_expr += ' ';
+		bool is_mut = false;
+
+		if (tokens.front() == L"mut")
+			is_mut = true;
+		else {}
 		tokens.pop();
 
 		//변수 이름 저장
-		wstring var_name = tokens.front();
-		tokens.pop();
+		wstring var_name = tokens.front(); tokens.pop();
 
 		//타입 체크
 		if (tokens.front() == L":") //타입이 명시될 경우
@@ -970,15 +1031,23 @@ void Interpreter::interpret_variable(std::queue<std::wstring>& tokens)
 			variable_expr += L"auto";
 		}
 
+		std::wcout << variable_expr << std::endl;
+
 		variable_expr += ' ';
 		variable_expr += var_name;
 
 		//나머지 갖다붙이기
-		while (!tokens.empty())
+		if (!tokens.empty())
 		{
-			variable_expr += tokens.front();
-			variable_expr += ' ';
-			tokens.pop();
+			if(tokens.front()==L"=")
+			{
+				while(!tokens.empty())
+				{
+					variable_expr += tokens.front();
+					variable_expr += ' ';
+					tokens.pop();
+				}
+			}
 		}
 	}
 	else

@@ -15,16 +15,19 @@ void Builder::compile() const
 {
 	//환경변수 INCLUDE 설정 (#include 헤더 포함 경로)
 	//기본 라이브러리와 sfml 라이브러리 추가.
-	_wsystem(
+	_wsystem
+	(
 		(L"setx INCLUDE " + _original_filepath + L"\\msvc\\include;"
-			+ _original_filepath + L"\\Library\\SFML\\include").c_str()
+			+ _original_filepath + L"\\Library\\SFML\\include")
+		.c_str()
 	);
 
 	//환경변수 LIB 설정 (lib 의존성 명시)
 	//기본 라이브러리와 sfml 라이브러리 추가.
 	_wsystem(
 		(L"setx LIB " + _original_filepath + L"\\msvc\\lib;"
-			+ _original_filepath + L"\\Library\\SFML\\lib").c_str()
+			+ _original_filepath + L"\\Library\\SFML\\lib")
+		.c_str()
 	);
 
 	wstring cmd = this->_original_filepath + L"\\msvc\\bin\\cl.exe /EHsc";
