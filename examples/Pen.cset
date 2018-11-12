@@ -1,0 +1,29 @@
+import console
+import gui
+
+func main()
+{
+	mut window : Window
+
+	mut old_pos : point
+
+	mut lines : Vector<ThinLine>
+
+	window.on_paint = $ {
+		window.clear()
+		window.add_drawables(lines)
+		window.display()
+	}
+	
+	window.on_mouse_move = $(pos : point) {
+
+		if(window.is_left_button_down())
+		{
+			lines.push_back(ThinLine(old_pos, pos))
+			window.paint()
+		}
+		old_pos = pos
+	}
+
+	window.run()
+}

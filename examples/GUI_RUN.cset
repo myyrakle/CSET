@@ -1,0 +1,7 @@
+import gui
+
+func main(args : string[])
+{
+	mut window : Window
+	window.run()	
+}

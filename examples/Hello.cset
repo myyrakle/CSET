@@ -1,0 +1,7 @@
+import console
+
+func main(args : string[])
+{
+	console::putline("hello world");
+	console::pause();	
+}
