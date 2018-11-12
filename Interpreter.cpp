@@ -389,7 +389,7 @@ void Interpreter::interpret_local(std::queue<std::wstring>& tokens, int unclosed
 
 		else if (tokens.front() == L"else")
 		{
-			this->interpret_if(tokens);
+			this->interpret_else(tokens);
 		}
 
 		else //나머지는 그냥
@@ -671,6 +671,8 @@ void Interpreter::interpret_lambda(std::queue<std::wstring>& tokens)
 				lambda_signature += tokens.front();
 				tokens.pop();
 			}
+			else if(tokens.front()==L")")
+			{ }
 			else
 				print_error(L"뭐야 이게" + tokens.front());
 		}
@@ -682,8 +684,8 @@ void Interpreter::interpret_lambda(std::queue<std::wstring>& tokens)
 			if(caller->readable())
 				tokens = std::move(caller->read_line_then_tokenize());
 
-		if(tokens.front() == L"{") //없으면 void
-			lambda_signature += L"->void";
+		if (tokens.front() == L"{"); //없으면 void X
+			//lambda_signature += L"->void";
 		else if (tokens.front() == L"->")
 		{
 			lambda_signature += tokens.front(); tokens.pop();
@@ -696,8 +698,9 @@ void Interpreter::interpret_lambda(std::queue<std::wstring>& tokens)
 		caller->bodys += '\n';
 	}
 	
-	if(tokens.front() == L"{")//파라미터 없을 경우
+	if (tokens.front() == L"{")
 	{
+		caller->bodys += tokens.front(); tokens.pop();
 		this->interpret_local(tokens, 1);
 	}
 }
@@ -873,10 +876,15 @@ void Interpreter::interpret_while(std::queue<std::wstring>& tokens)
 
 void Interpreter::interpret_if(std::queue<std::wstring>& tokens)
 {
-	caller->bodys += L"if"; tokens.pop();
+	std::wcout << tokens.front() << std::endl;
+	caller->bodys += L"if"; tokens.pop(); //if 제거
+
+	if(tokens.empty())
+		if(caller->readable())
+			tokens = std::move(caller->read_line_then_tokenize());
 
 	if (tokens.front() != L"(")
-		this->print_error(L"if에 여는괄호 어딨어요");
+		this->print_error(L"if에 여는괄호 어딨어요 <-"+tokens.front());
 	else
 	{
 		caller->bodys += tokens.front(); tokens.pop(); // ( 넣음
@@ -897,11 +905,25 @@ void Interpreter::interpret_if(std::queue<std::wstring>& tokens)
 		this->interpret_check_Range(tokens);
 	}
 	caller->bodys += tokens.front(); tokens.pop();
+
+	while (tokens.empty())
+		if (caller->readable())
+			tokens = std::move(caller->read_line_then_tokenize());
+
+	if (tokens.front() == L"{")
+	{
+		caller->bodys += tokens.front(); tokens.pop();
+		this->interpret_local(tokens, 1);
+	}
 }
 
 void Interpreter::interpret_else(std::queue<std::wstring>& tokens)
 {
-	caller->bodys += L"else\n"; tokens.pop();
+	caller->bodys += L"else "; tokens.pop();
+
+	while (tokens.empty())
+		if (caller->readable())
+			tokens = std::move(caller->read_line_then_tokenize());
 }
 
 

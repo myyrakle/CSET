@@ -30,7 +30,7 @@ void Builder::compile() const
 		.c_str()
 	);
 
-	wstring cmd = this->_original_filepath + L"\\msvc\\bin\\cl.exe /EHsc";
+	wstring cmd = this->_original_filepath + L"\\msvc\\bin\\cl.exe /EHsc /MD";
 
 	for (auto& filename : filenames)
 		std::wcout << L"파일네임 : " << filename << std::endl;

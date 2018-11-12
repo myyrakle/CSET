@@ -84,6 +84,7 @@ std::queue<std::wstring> Tokenizer::tokenize(const std::wstring& line)
 				if (!word.empty())
 					tokens.push(std::move(word));
 				tokens.emplace(1, c);
+				//std::wcout << tokens.back() << std::endl;
 				break;
 
 				//연산자 처리

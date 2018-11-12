@@ -6,6 +6,19 @@ void Handler::run()
 	this->interpreter.set_caller(this);
 
 	interpreter.do_import(L"basic");
+	builder.add_file(L"kernel32.lib");
+	builder.add_file(L"user32.lib");
+	builder.add_file(L"gdi32.lib");
+	builder.add_file(L"winspool.lib");
+	builder.add_file(L"comdlg32.lib");
+	builder.add_file(L"advapi32.lib");
+	builder.add_file(L"shell32.lib");
+	builder.add_file(L"ole32.lib");
+	builder.add_file(L"oleaut32.lib");
+	builder.add_file(L"uuid.lib");
+	builder.add_file(L"odbc32.lib");
+	builder.add_file(L"odbccp32.lib");
+		          
 
 	//전부 읽어서 저장.
 	for (auto& filename : filenames)
