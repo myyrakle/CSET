@@ -37,35 +37,35 @@ public:
 	EventInfo(EventInfo&&) = default;
 	EventInfo& operator=(EventInfo&&) = default;
 public:
-	unsigned int getchar() const //ëˆŒë¦° ë¬¸ì ë°˜í™˜
+	unsigned int getchar() const //´­¸° ¹®ÀÚ ¹İÈ¯
 	{
 		return event.text.unicode;
 	}
-	point get_moved_mouse() const //í˜„ì¬ ë§ˆìš°ìŠ¤ìœ„ì¹˜ ë°˜í™˜
+	point get_moved_mouse() const //ÇöÀç ¸¶¿ì½ºÀ§Ä¡ ¹İÈ¯
 	{
 		return point{ event.mouseMove.x, event.mouseMove.y };
 	}
-	quad get_resized_size() const //í˜„ì¬ ì°½ í¬ê¸° ë°˜í™˜
+	quad get_resized_size() const //ÇöÀç Ã¢ Å©±â ¹İÈ¯
 	{
 		return quad{ event.size.width, event.size.height };
 	}
-	sf::Keyboard::Key get_key() const //ëˆŒë¦° í‚¤
+	sf::Keyboard::Key get_key() const //´­¸° Å°
 	{
 		return event.key.code;
 	}
 public:
 	/*
-	mouse_pressed/mose_released ê´€ë ¨ ë©”ì„œë“œ
+	mouse_pressed/mose_released °ü·Ã ¸Ş¼­µå
 	*/
-	bool is_left_button() const //ì™¼ìª½ ë§ˆìš°ìŠ¤ ë²„íŠ¼ì´ ëˆŒë ¸ë‹¤ë©´ true
+	bool is_left_button() const //¿ŞÂÊ ¸¶¿ì½º ¹öÆ°ÀÌ ´­·È´Ù¸é true
 	{
 		return event.mouseButton.button == sf::Mouse::Button::Left;
 	}
-	bool is_right_button() const //ì˜¤ë¥¸ìª½ ë§ˆìš°ìŠ¤ ë²„íŠ¼ì´ ëˆŒë ¸ë‹¤ë©´ true
+	bool is_right_button() const //¿À¸¥ÂÊ ¸¶¿ì½º ¹öÆ°ÀÌ ´­·È´Ù¸é true
 	{
 		return event.mouseButton.button == sf::Mouse::Button::Right;
 	}
-	point get_clicked_position() const //ë§ˆìš°ìŠ¤ ë²„íŠ¼ìœ¼ë¡œ í´ë¦­í•œ ìœ„ì¹˜ ë°˜í™˜
+	point get_clicked_position() const //¸¶¿ì½º ¹öÆ°À¸·Î Å¬¸¯ÇÑ À§Ä¡ ¹İÈ¯
 	{
 		return point{ event.mouseButton.x, event.mouseButton.y };
 	}
@@ -84,27 +84,27 @@ class Window
 private:
 	sf::RenderWindow window;
 	sf::Event event;
-	sf::String title = L"ì´ë¦„ ì—†ìŒ";
+	sf::String title = L"ÀÌ¸§ ¾øÀ½";
 	quad window_size = { 200,200 };
 	int window_style = sf::Style::Default;
 	bool created = false;
 public:
 	Window() : window()
 	{
-		on_started = [](Window& window)
+		on_started = [this]()
 		{
-			window.cover_with_color(sf::Color::White);
-			window.display();
+			this->cover_with_color(sf::Color::White);
+			this->display();
 		};
 
-		on_resized = [](Window& window, quad sizes)
+	/*	on_resized = [this](quad sizes)
 		{
-			window.display();
-		};
+			this->window.display();
+		};*/
 
-		on_closed = [](Window& window)
+		on_closed = [this]()
 		{
-			window.close();
+			this->close();
 		};
 	}
 	virtual ~Window() = default;
@@ -119,80 +119,79 @@ public:
 			this->create();
 
 		if (on_started != nullptr)
-			on_started(*this);
+			on_started();
 
 		while (this->is_open())
 		{
-			if (on_always != nullptr) //í•­ìƒ ì‹¤í–‰
-				on_always(*this);
+			if (on_always != nullptr) //Ç×»ó ½ÇÇà
+				on_always();
 
 			while (this->poll_event())
 			{
-				auto current_event = this->get_event(); //í˜„ì¬ ì´ë²¤íŠ¸
-				auto info = this->get_event_info(); //ì´ë²¤íŠ¸ ì¶”ê°€ì •ë³´
+				auto current_event = this->get_event(); //ÇöÀç ÀÌº¥Æ®
+				auto info = this->get_event_info(); //ÀÌº¥Æ® Ãß°¡Á¤º¸
 
 				if (pre_translated_events != nullptr)
-					pre_translated_events(*this, current_event);
+					pre_translated_events(current_event);
 
 				if (this->before_handling_events != nullptr)
-					before_handling_events(*this);
+					before_handling_events();
 
-				switch (current_event) //ì´ë²¤íŠ¸ ë¶„ê¸°
+				switch (current_event) //ÀÌº¥Æ® ºĞ±â
 				{
-				case sf::Event::EventType::Closed: //ë‹«í ë•Œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::Closed: //´İÈú ¶§ ¼öÇàµË´Ï´Ù.
 					if (on_closed != nullptr)
-						on_closed(*this);
+						on_closed();
 					break;
 
-				case sf::Event::EventType::TextEntered: //ë¬¸ì ì…ë ¥ì‹œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::TextEntered: //¹®ÀÚ ÀÔ·Â½Ã ¼öÇàµË´Ï´Ù.
 					if (on_text_entered != nullptr)
-						on_text_entered(*this, info.getchar());
+						on_text_entered(info.getchar());
 					break;
 
-				case sf::Event::EventType::KeyPressed: //í‚¤ê°€ ëˆŒë ¸ì„ ë•Œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::KeyPressed: //Å°°¡ ´­·ÈÀ» ¶§ ¼öÇàµË´Ï´Ù.
 					if (on_key_down)
-						on_key_down(*this, info.get_key());
+						on_key_down(info.get_key());
 					break;
 
-				case sf::Event::EventType::KeyReleased: //í‚¤ê°€ ë–¼ì˜€ì„ ë•Œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::KeyReleased: //Å°°¡ ¶¼¿´À» ¶§ ¼öÇàµË´Ï´Ù.
 					if (on_key_up)
-						on_key_up(*this, info.get_key());
+						on_key_up(info.get_key());
 					break;
 
-				case sf::Event::EventType::MouseEntered: //ë§ˆìš°ìŠ¤ê°€ í™”ë©´ì— ì§„ì…í•˜ë©´ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::MouseEntered: //¸¶¿ì½º°¡ È­¸é¿¡ ÁøÀÔÇÏ¸é ¼öÇàµË´Ï´Ù.
 					if (on_mouse_entered != nullptr)
-						on_mouse_entered(*this);
+						on_mouse_entered();
 					break;
 
-				case sf::Event::EventType::MouseLeft: //ë§ˆìš°ìŠ¤ê°€ í™”ë©´ì„ ë²—ì–´ë‚˜ë©´ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::MouseLeft: //¸¶¿ì½º°¡ È­¸éÀ» ¹ş¾î³ª¸é ¼öÇàµË´Ï´Ù.
 					if (on_mouse_left != nullptr)
-						on_mouse_left(*this);
+						on_mouse_left();
 					break;
 
-				case sf::Event::EventType::MouseWheelScrolled: //íœ ì´ ëŒì•„ê°ˆ ë•Œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::MouseWheelScrolled: //ÈÙÀÌ µ¹¾Æ°¥ ¶§ ¼öÇàµË´Ï´Ù.
 					if (on_wheel_scrolled != nullptr)
-						on_wheel_scrolled(*this, info.get_scrolled_position().x, info.get_scrolled_position().y,
-							info.get_scrolled_ticks());
+						on_wheel_scrolled(info.get_scrolled_position(), info.get_scrolled_ticks());
 					break;
 
-				case sf::Event::EventType::MouseMoved: //ë§ˆìš°ìŠ¤ê°€ ì›€ì§ì¼ ë•Œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::MouseMoved: //¸¶¿ì½º°¡ ¿òÁ÷ÀÏ ¶§ ¼öÇàµË´Ï´Ù.
 					if (on_mouse_move != nullptr)
-						on_mouse_move(*this, { info.get_moved_mouse().x, info.get_moved_mouse().y });
+						on_mouse_move(info.get_moved_mouse());
 					break;
 
-				case sf::Event::EventType::MouseButtonPressed: //ë²„íŠ¼ì´ ëˆŒë¦´ ë•Œ ìˆ˜í–‰ë©ë‹ˆë‹¤.
+				case sf::Event::EventType::MouseButtonPressed: //¹öÆ°ÀÌ ´­¸± ¶§ ¼öÇàµË´Ï´Ù.
 				{
-					if (info.is_left_button()) //ì™¼ìª½ ë²„íŠ¼ì´ ëˆŒë¦´ ë•Œ
+					if (info.is_left_button()) //¿ŞÂÊ ¹öÆ°ÀÌ ´­¸± ¶§
 					{
 						auto pair = info.get_clicked_position();
 						if (on_left_button_down != nullptr)
-							on_left_button_down(*this, { pair.x, pair.y });
+							on_left_button_down({ pair.x, pair.y });
 					}
-					else if (info.is_right_button()) //ì˜¤ë¥¸ìª½ ë²„íŠ¼ì´ ëˆŒë¦´ ë•Œ
+					else if (info.is_right_button()) //¿À¸¥ÂÊ ¹öÆ°ÀÌ ´­¸± ¶§
 					{
 						auto pair = info.get_clicked_position();
 						if (on_right_button_down != nullptr)
-							on_left_button_down(*this, { pair.x, pair.y });
+							on_left_button_down({ pair.x, pair.y });
 					}
 					else
 					{
@@ -201,19 +200,19 @@ public:
 					break;
 				}
 
-				case sf::Event::EventType::MouseButtonReleased: //ë²„íŠ¼ì´ ë–¼ì–´ì§ˆ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+				case sf::Event::EventType::MouseButtonReleased: //¹öÆ°ÀÌ ¶¼¾îÁú ¶§ È£ÃâµË´Ï´Ù.
 				{
-					if (info.is_left_button()) //ì™¼ìª½ ë²„íŠ¼ì´ ë–¼ì¼ ë•Œ
+					if (info.is_left_button()) //¿ŞÂÊ ¹öÆ°ÀÌ ¶¼ÀÏ ¶§
 					{
 						auto pair = info.get_clicked_position();
 						if (on_left_button_up != nullptr)
-							on_left_button_up(*this, { pair.x, pair.y });
+							on_left_button_up({ pair.x, pair.y });
 					}
-					else if (info.is_right_button()) //ì˜¤ë¥¸ìª½ ë²„íŠ¼ì´ ë–¼ì¼ ë•Œ
+					else if (info.is_right_button()) //¿À¸¥ÂÊ ¹öÆ°ÀÌ ¶¼ÀÏ ¶§
 					{
 						auto pair = info.get_clicked_position();
 						if (on_right_button_up != nullptr)
-							on_left_button_up(*this, { pair.x, pair.y });
+							on_left_button_up({ pair.x, pair.y });
 					}
 					else
 					{
@@ -222,80 +221,80 @@ public:
 					break;
 				}
 
-				case sf::Event::EventType::GainedFocus: //í¬ì»¤ìŠ¤ë¥¼ ì–»ì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤,
+				case sf::Event::EventType::GainedFocus: //Æ÷Ä¿½º¸¦ ¾òÀ» ¶§ È£ÃâµË´Ï´Ù,
 					if (on_gained_focus != nullptr)
-						on_gained_focus(*this);
+						on_gained_focus();
 					break;
 
-				case sf::Event::EventType::LostFocus: //í¬ì»¤ìŠ¤ë¥¼ ìƒì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+				case sf::Event::EventType::LostFocus: //Æ÷Ä¿½º¸¦ ÀÒÀ» ¶§ È£ÃâµË´Ï´Ù.
 					if (on_lost_focus != nullptr)
-						on_lost_focus(*this);
+						on_lost_focus();
 					break;
 
-				case sf::Event::EventType::Resized: //í¬ê¸°ê°€ ë³€ê²½ë  ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+				case sf::Event::EventType::Resized: //Å©±â°¡ º¯°æµÉ ¶§ È£ÃâµË´Ï´Ù.
 					if (on_resized != nullptr)
-						on_resized(*this, { info.get_resized_size().width, info.get_resized_size().height });
+						on_resized(info.get_resized_size());
 					break;
 
-				default: //ì´ì™¸ ì‘ì—…ì—ì„œ í˜¸ì¶œë©ë‹ˆë‹¤.
+				default: //ÀÌ¿Ü ÀÛ¾÷¿¡¼­ È£ÃâµË´Ï´Ù.
 					if (on_default != nullptr)
-						on_default(*this);
+						on_default();
 					break;
 				}
 
 				if (this->after_handling_events != nullptr)
-					after_handling_events(*this);
+					after_handling_events();
 
 				continue;
 			}
 
 			/*if (on_no_event != nullptr)
-			on_no_event(*this);*/ //ë¯¸êµ¬í˜„
+			on_no_event(*this);*/ //¹Ì±¸Çö
 		}
 	}
-public: //ì´ë²¤íŠ¸ ì²˜ë¦¬ê¸°ì…ë‹ˆë‹¤.
-	std::function<void(Window&)> on_started = nullptr; //ì‹œì‘ë ë•Œ í•œë²ˆë§Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_always = nullptr; //í•­ìƒ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_paint = nullptr;  //ê·¸ë¦¬ê¸° ì‘ì—…ì„ ì—¬ê¸°ë‹¤ ëª¨ì•„ë†“ê³  í•©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_no_event = nullptr; //ì•„ë¬´ëŸ° ì´ë²¤íŠ¸ë„ ì—†ì„ ë•Œ ë°œìƒí•©ë‹ˆë‹¤. //ì•„ì§ êµ¬í˜„ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.
+public: //ÀÌº¥Æ® Ã³¸®±âÀÔ´Ï´Ù.
+	std::function<void()> on_started = nullptr; //½ÃÀÛµÉ¶§ ÇÑ¹ø¸¸ È£ÃâµË´Ï´Ù.
+	std::function<void()> on_always = nullptr; //Ç×»ó È£ÃâµË´Ï´Ù.
+	std::function<void()> on_paint = nullptr;  //±×¸®±â ÀÛ¾÷À» ¿©±â´Ù ¸ğ¾Æ³õ°í ÇÕ´Ï´Ù.
+	std::function<void()> on_no_event = nullptr; //¾Æ¹«·± ÀÌº¥Æ®µµ ¾øÀ» ¶§ ¹ß»ıÇÕ´Ï´Ù. //¾ÆÁ÷ ±¸ÇöµÇÁö ¾Ê¾Ò½À´Ï´Ù.
 
-	std::function<void(Window&, sf::Event::EventType&)> pre_translated_events = nullptr; //ê°ì§€ëœ ì´ë²¤íŠ¸ì— ì¶”ê°€ì ì¸ ë°‘ì‘ì—…ì„ í•©ë‹ˆë‹¤.
-	std::function<void(Window&)> before_handling_events = nullptr; //ì´ë²¤íŠ¸ë¥¼ ê°ì§€í–ˆì„ ë•Œ, ì´ë²¤íŠ¸ë“¤ì„ ì²˜ë¦¬í•˜ê¸° ì „ì— í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> after_handling_events = nullptr; //ì´ë²¤íŠ¸ë¥¼ ê°ì§€í–ˆì„ ë•Œ, ì´ë²¤íŠ¸ë“¤ì„ ì²˜ë¦¬í•œ í›„ì— í˜¸ì¶œë©ë‹ˆë‹¤.
+	std::function<void(sf::Event::EventType&)> pre_translated_events = nullptr; //°¨ÁöµÈ ÀÌº¥Æ®¿¡ Ãß°¡ÀûÀÎ ¹ØÀÛ¾÷À» ÇÕ´Ï´Ù.
+	std::function<void()> before_handling_events = nullptr; //ÀÌº¥Æ®¸¦ °¨ÁöÇßÀ» ¶§, ÀÌº¥Æ®µéÀ» Ã³¸®ÇÏ±â Àü¿¡ È£ÃâµË´Ï´Ù.
+	std::function<void()> after_handling_events = nullptr; //ÀÌº¥Æ®¸¦ °¨ÁöÇßÀ» ¶§, ÀÌº¥Æ®µéÀ» Ã³¸®ÇÑ ÈÄ¿¡ È£ÃâµË´Ï´Ù.
 
-	std::function<void(Window&, unsigned int)> on_text_entered = nullptr; //ë¬¸ì í‚¤ê°€ ëˆŒë ¸ì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&, sf::Keyboard::Key)> on_key_down = nullptr; //í‚¤ë³´ë“œê°€ ëˆŒë¦´ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&, sf::Keyboard::Key)> on_key_up = nullptr; //í‚¤ë³´ë“œê°€ ë–¼ì¼ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.	
+	std::function<void(unsigned int)> on_text_entered = nullptr; //¹®ÀÚ Å°°¡ ´­·ÈÀ» ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void(sf::Keyboard::Key)> on_key_down = nullptr; //Å°º¸µå°¡ ´­¸± ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void(sf::Keyboard::Key)> on_key_up = nullptr; //Å°º¸µå°¡ ¶¼ÀÏ ¶§ È£ÃâµË´Ï´Ù.	
 
-	std::function<void(Window&)> on_gained_focus = nullptr; //í¬ì»¤ìŠ¤ë¥¼ ì–»ì—ˆì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_lost_focus = nullptr; //í¬ì»¤ìŠ¤ë¥¼ ìƒì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+	std::function<void()> on_gained_focus = nullptr; //Æ÷Ä¿½º¸¦ ¾ò¾úÀ» ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void()> on_lost_focus = nullptr; //Æ÷Ä¿½º¸¦ ÀÒÀ» ¶§ È£ÃâµË´Ï´Ù.
 
-	std::function<void(Window&, point)> on_left_button_down = nullptr; //ì™¼ìª½ ë²„íŠ¼ì„ ëˆ„ë¥¼ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&, point)> on_left_button_up = nullptr; //ì™¼ìª½ ë²„íŠ¼ì„ ë—„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&, point)> on_right_button_down = nullptr; //ì˜¤ë¥¸ìª½ ë²„íŠ¼ì„ ëˆ„ë¥¼ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&, point)> on_right_button_up = nullptr; //ì˜¤ë¥¸ìª½ ë²„íŠ¼ì„ ë—„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+	std::function<void(point)> on_left_button_down = nullptr; //¿ŞÂÊ ¹öÆ°À» ´©¸¦ ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void(point)> on_left_button_up = nullptr; //¿ŞÂÊ ¹öÆ°À» ¶¿ ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void(point)> on_right_button_down = nullptr; //¿À¸¥ÂÊ ¹öÆ°À» ´©¸¦ ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void(point)> on_right_button_up = nullptr; //¿À¸¥ÂÊ ¹öÆ°À» ¶¿ ¶§ È£ÃâµË´Ï´Ù.
 
-	std::function<void(Window&, point)> on_mouse_move = nullptr; //ë§ˆìš°ìŠ¤ê°€ ì›€ì§ì¼ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_mouse_entered = nullptr; //ë§ˆìš°ìŠ¤ê°€ ì°½ì— ì§„ì…í–ˆì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_mouse_left = nullptr; //ë§ˆìš°ìŠ¤ê°€ ì°½ì—ì„œ ë‚˜ê°”ì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+	std::function<void(point)> on_mouse_move = nullptr; //¸¶¿ì½º°¡ ¿òÁ÷ÀÏ ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void()> on_mouse_entered = nullptr; //¸¶¿ì½º°¡ Ã¢¿¡ ÁøÀÔÇßÀ» ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void()> on_mouse_left = nullptr; //¸¶¿ì½º°¡ Ã¢¿¡¼­ ³ª°¬À» ¶§ È£ÃâµË´Ï´Ù.
 
-	std::function<void(Window&, int, int, float)> on_wheel_scrolled = nullptr; //ë§ˆìš°ìŠ¤ íœ ì´ ì›€ì§ì¼ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+	std::function<void(point, float)> on_wheel_scrolled = nullptr; //¸¶¿ì½º ÈÙÀÌ ¿òÁ÷ÀÏ ¶§ È£ÃâµË´Ï´Ù.
 
-	std::function<void(Window&)> on_closed = nullptr; //ë‹«í ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&, quad)> on_resized = nullptr; //ì°½ í¬ê¸°ê°€ ë°”ë€” ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
-	std::function<void(Window&)> on_default = nullptr; //ê¸°ë³¸ ë™ì‘ì…ë‹ˆë‹¤.
+	std::function<void()> on_closed = nullptr; //´İÈú ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void(quad)> on_resized = nullptr; //Ã¢ Å©±â°¡ ¹Ù²ğ ¶§ È£ÃâµË´Ï´Ù.
+	std::function<void()> on_default = nullptr; //±âº» µ¿ÀÛÀÔ´Ï´Ù.
 public:
 	void paint()
 	{
 		if (on_paint != nullptr)
-			on_paint(*this);
+			on_paint();
 	}
 public:
-	sf::Event::EventType get_event() const //í˜„ì¬ ì´ë²¤íŠ¸ ë°˜í™˜
+	sf::Event::EventType get_event() const //ÇöÀç ÀÌº¥Æ® ¹İÈ¯
 	{
 		return event.type;
 	}
-	bool poll_event() //ì´ë²¤íŠ¸ í™•ì¸
+	bool poll_event() //ÀÌº¥Æ® È®ÀÎ
 	{
 		return window.pollEvent(this->event);
 	}
@@ -324,29 +323,29 @@ public:
 public:
 	void create()
 	{
-		this->create(window_size.width, window_size.height, title, window_style); //ìœ„ì„
+		this->create(window_size.width, window_size.height, title, window_style); //À§ÀÓ
 	}
-	void create(unsigned int _width, unsigned int _height, std::wstring _title, int _style) //ìƒì„±ì í•¨ìˆ˜
+	void create(unsigned int _width, unsigned int _height, std::wstring _title, int _style) //»ı¼ºÀÚ ÇÔ¼ö
 	{
 		this->created = true;
 		window.create(sf::VideoMode(_width, _height), _title, _style);
 	}
 public:
-	void resizable(bool want) //trueì¼ ê²½ìš° ìœˆë„ìš°ì˜ í¬ê¸°ë¥¼ ì¡°ì •í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+	void resizable(bool want) //trueÀÏ °æ¿ì À©µµ¿ìÀÇ Å©±â¸¦ Á¶Á¤ÇÒ ¼ö ÀÖ½À´Ï´Ù.
 	{
 		if (want)
 			window_style |= sf::Style::Resize;
 		else
 			window_style &= ~sf::Style::Resize;
 	}
-	void use_titlebar(bool want) //trueì¼ ê²½ìš° íƒ€ì´í‹€ë°”ê°€ í‘œì‹œë©ë‹ˆë‹¤.
+	void use_titlebar(bool want) //trueÀÏ °æ¿ì Å¸ÀÌÆ²¹Ù°¡ Ç¥½ÃµË´Ï´Ù.
 	{
 		if (want)
 			window_style |= sf::Style::Titlebar;
 		else
 			window_style &= ~sf::Style::Titlebar;
 	}
-	void use_close_button(bool want) //trueì¼ ê²½ìš° ë‹«ê¸° ë²„íŠ¼ì´ í‘œì‹œë©ë‹ˆë‹¤.
+	void use_close_button(bool want) //trueÀÏ °æ¿ì ´İ±â ¹öÆ°ÀÌ Ç¥½ÃµË´Ï´Ù.
 	{
 		if (want)
 			window_style |= sf::Style::Close;
@@ -365,7 +364,7 @@ public:
 	{
 		window_style = sf::Style::None;
 	}
-public: //ì°½ í¬ê¸° ì¡°ì ˆ
+public: //Ã¢ Å©±â Á¶Àı
 	void set_size(unsigned int width, unsigned int height)
 	{
 		window_size = { width, height };
@@ -398,8 +397,12 @@ public:
 		return this->title;
 	}
 
-	/*ê·¸ë˜í”½ ì²˜ë¦¬*/
+	/*±×·¡ÇÈ Ã³¸®*/
 public:
+	void clear(sf::Color color = sf::Color::White)
+	{
+		window.clear(color);
+	}
 	void cover_with_color(sf::Color color = sf::Color::White)
 	{
 		window.clear(color);
@@ -409,12 +412,12 @@ public:
 		window.draw(drawable);
 	}
 	template<class SF_Drawable>
-	void add_drawables(std::vector<SF_Drawable>& drawables)
+	void add_drawables(Vector<SF_Drawable>& drawables)
 	{
 		for (auto& e : drawables)
 			window.draw(e);
 	}
-	void display() //ë„ìš°ê¸°
+	void display() //¶ç¿ì±â
 	{
 		window.display();
 	}
@@ -431,13 +434,13 @@ public:
 	{
 		return sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
 	}
-	static point get_mouse_position() //í˜„ì¬ ë§ˆìš°ìŠ¤ ì¢Œí‘œ ë°˜í™˜
+	static point get_mouse_position() //ÇöÀç ¸¶¿ì½º ÁÂÇ¥ ¹İÈ¯
 	{
 		auto pos = sf::Mouse::getPosition();
 		return point{ pos.x, pos.y };
 	}
 public:
-	EventInfo get_event_info() const //ì´ë²¤íŠ¸ ì •ë³´ ì²˜ë¦¬ ìœ„ì„
+	EventInfo get_event_info() const //ÀÌº¥Æ® Á¤º¸ Ã³¸® À§ÀÓ
 	{
 		return EventInfo(this->event);
 	}
@@ -451,6 +454,10 @@ private:
 public:
 	ThinLine() = default;
 	virtual ~ThinLine() = default;
+	ThinLine(point from, point to)
+	{
+		set_from_and_to(from, to);
+	}
 	void set_color(sf::Color color)
 	{
 		line[0].color = color;
@@ -461,7 +468,7 @@ public:
 		line[0].position = { (float)from.x, (float)from.y };
 		line[1].position = { (float)to.x, (float)to.y };
 	}
-	operator sf::VertexArray&()
+	operator sf::Drawable&()
 	{
 		return line;
 	}
