@@ -1,40 +1,37 @@
-#include <utility>
+﻿#include <utility>
 #include <string>
 #include <stdint.h>
 #include <vector>
 
 
 class Object; //최상위 클래스
-using object = Object;
 class Char; //문자 타입
 class String; //문자열 타입
-using string = String;
 class Bool; //논리 타입
 class Byte; //바이트 타입
 
-//실수 타입
+			//실수 타입
 template<class FloatType>
 class Float_Basic;
 using Float = Float_Basic<float>;
 using Double = Float_Basic<double>;
-using Ldouble = Float_Basic<long double>; using ldouble = Ldouble;
-
+using Ldouble = Float_Basic<long double>;
 
 //정수 타입
 template<class IntType>
 class Int_Basic;
 using Int = Int_Basic<int>;
-using Uint = Int_Basic<unsigned int>; using uint= Uint;
-using Int8 = Int_Basic<int8_t>; using int8= Int8;
-using Int16 = Int_Basic<int16_t>; using int16=Int16;
-using Int32 = Int_Basic<int32_t>; using int32=Int32;
-using Int64 = Int_Basic<int64_t>; using int64=Int64;
-using Uint8 = Int_Basic<uint8_t>; using uint8 = Uint8
-using Uint16 = Int_Basic<uint16_t>; using uint16 = Uint16;
-using Uint32 = Int_Basic<uint32_t>; using uint32 =Uint32;
-using Uint64 = Int_Basic<uint64_t>; using uint64=Uint64;
+using Uint = Int_Basic<unsigned int>;
+using Int8 = Int_Basic<int8_t>;
+using Int16 = Int_Basic<int16_t>;
+using Int32 = Int_Basic<int32_t>;
+using Int64 = Int_Basic<int64_t>;
+using Uint8 = Int_Basic<uint8_t>;
+using Uint16 = Int_Basic<uint16_t>;
+using Uint32 = Int_Basic<uint32_t>;
+using Uint64 = Int_Basic<uint64_t>;
 
-class Range; //범위 표현 컨테이너 
+class Range; //범위 표현 컨테이너
 class Nullable; //옵셔널
 
 template <class T>
@@ -42,31 +39,7 @@ class Box; //소유권 기반 스마트포인터
 template <class T>
 class RcBox; //레퍼런스 카운팅 스마트포인터
 
-//컬렉션 최상위 클래스
-class Collection;
-
-//인덱싱이 가능한가?
-template <class T>
-class Indexable;
-
-//소팅이 가능한가?
-class Sortable;
-
-//배열, 동적배열, 벡터 공통 인터페이스
-template <class T>
-class IArray;
-
-//정적배열
-template <size_t Length, class T>
-class Array;
-
-//동적배열
-template <class T>
-class DynamicArray;
-
-//함수 
-template <class R, class ...Args>
-class FuncType;
+//class FuncType;
 
 
 //최상위 클래스입니다.
@@ -485,9 +458,9 @@ public:
 class Range : public Object
 {
 private:
-	Int head;
-	Int current_value = 0;
-	Int tail;
+	int head;
+	int current_value = 0;
+	int tail;
 public:
 	class iterator : public Object
 	{
@@ -515,13 +488,13 @@ public:
 			return *this;
 		}
 		iterator operator++(int) { return this->operator++(); } //위임
-		Int& operator*() { return obj->current_value; }
-		const Int& operator*() const { return obj->current_value; }
-		Bool operator==(const iterator& rhs)
+		int& operator*() { return obj->current_value; }
+		const int& operator*() const { return obj->current_value; }
+		bool operator==(const iterator& rhs)
 		{
 			return this->obj == rhs.obj;
 		}
-		Bool operator!=(const iterator& rhs)
+		bool operator!=(const iterator& rhs)
 		{
 			return this->obj != rhs.obj;
 		}
@@ -552,13 +525,13 @@ public:
 			return *this;
 		}
 		reverse_iterator operator++(int) { return this->operator++(); } //위임
-		Int& operator*() { return obj->current_value; }
-		const Int& operator*() const { return obj->current_value; }
-		Bool operator==(const reverse_iterator& rhs)
+		int& operator*() { return obj->current_value; }
+		const int& operator*() const { return obj->current_value; }
+		bool operator==(const reverse_iterator& rhs)
 		{
 			return this->obj == rhs.obj;
 		}
-		Bool operator!=(const reverse_iterator& rhs)
+		bool operator!=(const reverse_iterator& rhs)
 		{
 			return this->obj != rhs.obj;
 		}
@@ -586,7 +559,7 @@ public: //역순 반복자
 public:
 	Range() = delete;
 	virtual ~Range() = default;
-	Range(Int _lhs, Int _rhs) : head(_lhs), tail(_rhs) {}
+	Range(int _lhs, int _rhs) : head(_lhs), tail(_rhs) {}
 };
 
 
@@ -611,7 +584,6 @@ inline Uint Float_Basic<FloatType>::get_size() const
 {
 	return Uint(sizeof(value));
 }
-/*get_size 오버라이드*/
 
 /*get_typename 오버라이드*/
 inline String Object::get_typename() const
@@ -640,7 +612,7 @@ inline String Float_Basic<FloatType>::get_typename() const
 {
 	return String(L"Float");
 }
-/*get_typename 오버라이드*/
+
 
 /*to_string 오버라이드*/
 
@@ -671,39 +643,20 @@ inline String Float_Basic<FloatType>::to_string() const
 	return String(std::to_wstring(value));
 }
 
-/*to_string 오버라이드*/
 
-
-
-//컬렉션 인터페이스
 class Collection : public Object
 {
-	Bool is_empty() const =0;
-	Bool is_not_empty() const =0;
-};
-
-class Sortable : public Collection
-{
-	virtual void sort() = 0;
-	virtual void rsort() = 0;
-	virtual Bool is_sorted() const = 0;
-	virtual Bool is_rsorted() const = 0;
+	//Bool is_empty() const = 0;
+	//Bool is_not_empty() const = 0;
 };
 
 template <class T>
-class Indexable : public Collection
-{
-	virtual T& operator[](Uint index) = 0;
-	virtual const T& operator[](Uint index) const = 0;
-};
-
-template <class T>
-class IArray : public Sortable, public Indexable<T>
+class IArray : public Collection
 {
 public:
-	virtual Uint length() const = 0;
-	virtual Bool is_empty() const = 0;
-	virtual Bool is_not_empty() const =0;
+	virtual Uint length() const=0;
+	virtual T& operator[](Uint)=0;
+	virtual const T& operator[](Uint) const=0;
 };
 
 
@@ -711,6 +664,8 @@ public:
 #include <algorithm>
 #include <array>
 
+template <size_t Length, class T>
+class Array;
 
 template <size_t Length, class T>
 class Array : public IArray<T>
@@ -725,27 +680,6 @@ public:
 	constexpr Bool is_empty() const
 	{
 		return value.empty();
-	}
-	constexpr Bool is_not_empty() const
-	{
-		return !value.empty();
-	}
-public:
-	void sort()
-	{
-		std::sort(value.begin(), value.end());
-	}
-	void rsort()
-	{
-		std::sort(value.begin(), value.end(), std::greater<T>);
-	}
-	Bool is_sorted() const
-	{
-		std::is_sorted(value.begin(), value.end());
-	}
-	Bool is_rsorted() const
-	{
-		std::is_sorted(value.begin(), value.end(), std::greater<T>);
 	}
 public: //액세스
 	T& operator[](Uint index)
@@ -797,6 +731,11 @@ public:
 	{ return value.rend(); }
 };
 
+template <class T>
+class DynamicArray;
+
+template <class T>
+using dynamic_array = DynamicArray<T>;
 
 template <class T>
 class DynamicArray : public IArray<T>
@@ -965,27 +904,27 @@ public: /*탐색/확인*/
 
 		return const_iterator(arr + _length);
 	}
-	Uint find_index(const T& value) const //탐색 후 위치 인덱스 반환
+	size_t find_index(const T& value) const //탐색 후 위치 인덱스 반환
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return i;
 		return -1;
 	}
-	Bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
+	bool empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
 	{
 		return length == 0;
 	}
-	Bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
+	bool not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
 	{
 		return length != 0;
 	}
-	Bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
+	bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return true;
 		return false;
 	}
-	Uint count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
+	size_t count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
 	{
 		int c = 0;
 		for (int i = 0; i < _length; i++)
@@ -1001,11 +940,11 @@ public: //정렬
 	{
 		std::sort<T*>(arr, arr + _length, std::greater<T>());
 	}
-	Bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
+	bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted<T*>(arr, arr + _length);
 	}
-	Bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
+	bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted<T*>(arr, arr + _length, std::greater<T>());
 	}
@@ -1134,6 +1073,7 @@ public:
 			return this->ptr == rhs.ptr;
 		}
 	};
+
 
 	//역순 반복자입니다.
 	class reverse_iterator : public Object
@@ -1291,6 +1231,194 @@ public:
 			return this->ptr == rhs.ptr;
 		}
 	};
+};
+
+
+template <class T>
+class Vector : public IArray<T>
+{
+private:
+	std::vector<T> arr;
+public:
+	Vector() = default;
+	virtual ~Vector() = default;
+	Vector(const Vector& other) = default;
+	Vector& operator=(const Vector& other) = default;
+	Vector(Vector&& other) = default;
+	Vector& operator=(Vector&& other) = default;
+
+public: /*명시 생성/대입입니다.*/
+	Vector(Uint _length) : arr((unsigned int)_length)
+	{}
+	Vector(std::initializer_list<T> init) : arr(init)
+	{}
+	Vector& operator=(std::initializer_list<T> init)
+	{
+		arr(init);
+	}
+
+public: /*액세스 메서드입니다.*/
+	T & operator[](Uint index)
+	{
+		return arr[(size_t)index];
+	}
+	const T& operator[](Uint index) const
+	{
+		return arr[(size_t)index];
+	}
+	T & at(Uint index)
+	{
+		if (0 <= (size_t)index && (size_t)index < length)
+			return arr[index];
+		else
+			throw std::out_of_range();
+	}
+	const T& at(Uint index) const
+	{
+		if (0 <= (size_t)index && (size_t)index < length)
+			return arr[index];
+		else
+			throw std::out_of_range();
+	}
+
+public:
+	void push_back(const T& value)
+	{
+		arr.push_back(value);
+	}
+	void pop_back()
+	{
+		arr.pop_back();
+	}
+
+public:
+	T * data() //로우 시퀀스 반환
+	{
+		return arr.data();
+	}
+	const T* data() const
+	{
+		return arr.data();
+	}
+	Uint length() const //길이 반환
+	{
+		return arr.size();
+	}
+
+public:
+	void clear() //청소
+	{
+		arr.clear();
+	}
+	void swap(Vector&& other)
+	{
+		DynamicArray&& temp = std::move(other);
+		other = *this;
+		*this = std::move(temp);
+	}
+
+public: /*탐색/확인*/
+	decltype(auto) find(const T& value) //탐색 후 위치 반복자 반환
+	{
+		return arr.find(value);
+	}
+	decltype(auto) find(const T& value) const
+	{
+		return arr.find(value);
+	}
+	Int find_index(const T& value) const //탐색 후 위치 인덱스 반환
+	{
+		int i = 0;
+		for (const auto& e : arr)
+		{
+			if (e == value) 
+				return i;
+			i++;
+		}		
+		return -1;
+	}
+	bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
+	{
+		return arr.empty();
+	}
+	bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
+	{
+		return !arr.empty();
+	}
+	bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
+	{
+		for (int i = 0; i < _length; i++)
+			if (arr[i] == value) return true;
+		return false;
+	}
+	size_t count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
+	{
+		int c = 0;
+		for (int i = 0; i < _length; i++)
+			if (arr[i] == value) c++;
+		return c;
+	}
+public: //정렬
+	void sort() //오름차순으로 정렬합니다.
+	{
+		std::sort(arr.begin(), arr.end());
+	}
+	void rsort() //내림차순으로 정렬합니다.
+	{
+		std::sort(arr.begin(), arr.end(), std::greater<T>());
+	}
+	bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
+	{
+		return std::is_sorted(arr.begin(), arr.end());
+	}
+	bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
+	{
+		return std::is_sorted(arr.begin(), arr.end(), std::greater<T>());
+	}
+public:
+	void reverse() //뒤집습니다.
+	{
+		std::reverse(arr.begin(), arr.end());
+	}
+	void fill(const T& value) //해당 값으로 채움
+	{
+		for (auto& e : arr)
+			e = value;
+	}
+public: //반복자
+	decltype(auto) begin()
+	{
+		return arr.begin();
+	}
+	decltype(auto) begin() const
+	{
+		return arr.begin();
+	}
+	decltype(auto) end()
+	{
+		return arr.end();
+	}
+	decltype(auto) end() const
+	{
+		return arr.end();
+	}
+public: //역순 반복자
+	decltype(auto) rbegin()
+	{
+		return arr.rbegin();
+	}
+	decltype(auto) rbegin() const
+	{
+		return arr.rbegin();
+	}
+	decltype(auto) rend()
+	{
+		return arr.rend();
+	}
+	decltype(auto) rend() const
+	{
+		return arr.rend();
+	}
 };
 
 #include <functional>
