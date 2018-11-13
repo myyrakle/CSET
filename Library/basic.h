@@ -904,27 +904,27 @@ public: /*탐색/확인*/
 
 		return const_iterator(arr + _length);
 	}
-	size_t find_index(const T& value) const //탐색 후 위치 인덱스 반환
+	Uint find_index(const T& value) const //탐색 후 위치 인덱스 반환
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return i;
 		return -1;
 	}
-	bool empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
+	Bool empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
 	{
 		return length == 0;
 	}
-	bool not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
+	Bool not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
 	{
 		return length != 0;
 	}
-	bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
+	Bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return true;
 		return false;
 	}
-	size_t count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
+	Uint count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
 	{
 		int c = 0;
 		for (int i = 0; i < _length; i++)
@@ -940,11 +940,11 @@ public: //정렬
 	{
 		std::sort<T*>(arr, arr + _length, std::greater<T>());
 	}
-	bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
+	Bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted<T*>(arr, arr + _length);
 	}
-	bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
+	Bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted<T*>(arr, arr + _length, std::greater<T>());
 	}
@@ -1337,21 +1337,21 @@ public: /*탐색/확인*/
 		}		
 		return -1;
 	}
-	bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
+	Bool is_empty() const //시퀀스가 비었는지를 확인합니다. 비어있다면 true를 반환합니다.
 	{
 		return arr.empty();
 	}
-	bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
+	Bool is_not_empty() const //시퀀스가 비어있지 않은지를 확인합니다. 비어있지 않다면 true를 반환합니다.
 	{
 		return !arr.empty();
 	}
-	bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
+	Bool includes(const T& value) const //포함 여부를 확인합니다. 해당 값을 포함한다면 true를 반환합니다.
 	{
 		for (int i = 0; i < _length; i++)
 			if (arr[i] == value) return true;
 		return false;
 	}
-	size_t count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
+	Uint count(const T& value) const //해당 값과 매치되는 개수를 반환합니다.
 	{
 		int c = 0;
 		for (int i = 0; i < _length; i++)
@@ -1367,11 +1367,11 @@ public: //정렬
 	{
 		std::sort(arr.begin(), arr.end(), std::greater<T>());
 	}
-	bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
+	Bool is_sorted() const //오름차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted(arr.begin(), arr.end());
 	}
-	bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
+	Bool is_rsorted() const //내림차순 정렬상태인지 확인합니다.
 	{
 		return std::is_sorted(arr.begin(), arr.end(), std::greater<T>());
 	}
