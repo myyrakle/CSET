@@ -15,27 +15,32 @@
 
 <while> -> while( condition ) ( loop_statement | loop_expression )
 
-<for> -> for( range_declaration in range_expression ) ( loop_statement | loop_expression )
+<for> -> for( <range-declaration> in <range-expression> ) ( <loop-statement> | <loop-expression> )
 
-<rfor> -> rfor( range_declaration in range_expression ) ( loop_statement | loop_expression )
+<rfor> -> rfor( <range-declaration> in <range-expression> ) ( <loop-statement> | <loop-expression> )
 
-<import> -> import module_name
+<import> -> import <module-name>
 
-<return> -> return expression(optional)
+<return> -> return <expression>(optional)
 
-<break> -> break label(optional)
+<break> -> break <label-name>(optional)
 
-<continue> -> continue label(optional)
+<continue> -> continue <label-name>(optional)
 
 
-<variable> -> ( const | mut ) variable_name :<type>(optional) =init_expression(optional)
+<variable> -> ( const | mut ) variable_name :<type>(optional) = init_expression(optional)
 
-<literal> -> literal literal_name =value
+<literal> -> literal <literal-name> = <expression>
 
 <function> -> func func_name(<parameter-list>) ->return-type(optional) { body }
 
 <parameter-list> -> void | (const|mut) param-name :<type> , ...
 
-<class> -> class class_name inhertance_class(optional) { member_specification }
+<class> -> class class-name inhertance-class(optional) 
+{ member_specification }
 
-<lambda> -> $(parameter-list) ->return_type(optional) { body }
+<class-member> ->
+<method> |
+<variable>
+
+<closure> -> $(parameter-list) ->return_type(optional) { body }
