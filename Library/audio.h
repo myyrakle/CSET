@@ -16,11 +16,15 @@ public:
 		return !opened;
 	}
 public:
-	bool open_file(const std::wstring& filename)
+	bool open_file(const String& filename)
 	{
 		try 
 		{
-			sf::String temp(filename);
+			std::string temp;
+
+			for (const auto& e : filename)
+				temp += e;
+
 			music.openFromFile(temp);
 			opened = true;
 			return opened;
@@ -49,11 +53,11 @@ public:
 		return (music.getPlayingOffset().asSeconds());
 	}
 public:
-	void set_volume(float f) //ë³¼ë¥¨ì„ ì„¤ì •í•©ë‹ˆë‹¤. ìµœëŒ€ 100
+	void set_volume(float f) //º¼·ıÀ» ¼³Á¤ÇÕ´Ï´Ù. ÃÖ´ë 100
 	{
 		music.setVolume(f);
 	}
-	float get_volume() const //í˜„ì¬ ë³¼ë¥¨ì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
+	float get_volume() const //ÇöÀç º¼·ıÀ» °¡Á®¿É´Ï´Ù.
 	{
 		return music.getVolume();
 	}
@@ -65,48 +69,48 @@ public:
 	{
 		return music.getPitch();
 	}
-	bool is_auto_repeatable() const //ìë™ìœ¼ë¡œ ë°˜ë³µí•˜ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+	bool is_auto_repeatable() const //ÀÚµ¿À¸·Î ¹İº¹ÇÏ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
 	{
 		return music.getLoop();
 	}
-	void set_auto_repeat(bool _do) //ìë™ë°˜ë³µì—¬ë¶€ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+	void set_auto_repeat(bool _do) //ÀÚµ¿¹İº¹¿©ºÎ¸¦ ¼³Á¤ÇÕ´Ï´Ù.
 	{
 		music.setLoop(_do);
 	}
 public:
-	void play() //ë¹„ë™ê¸°ë¡œ ì¬ìƒí•©ë‹ˆë‹¤.
+	void play() //ºñµ¿±â·Î Àç»ıÇÕ´Ï´Ù.
 	{
 		music.play();
 	}
-	void play_with_block(void(*func)(void) = nullptr) //ë™ê¸°ë¡œ ì¬ìƒí•©ë‹ˆë‹¤.
+	void play_with_block(void(*func)(void) = nullptr) //µ¿±â·Î Àç»ıÇÕ´Ï´Ù.
 	{
 		music.play();
 		block_until_ended(func);
 	}
-	void block_until_ended(void(* func)(void) = nullptr) //ì¬ìƒí•˜ê³ , ëë‚ ë•Œê¹Œì§€ ë½ì„ ê²ë‹ˆë‹¤. ì½˜ì†” ì „ìš©
+	void block_until_ended(void(* func)(void) = nullptr) //Àç»ıÇÏ°í, ³¡³¯¶§±îÁö ¶ôÀ» °Ì´Ï´Ù. ÄÜ¼Ö Àü¿ë
 	{
 		while (this->is_playing())
 			if (func != nullptr)
 				func();
 	}
-	void pause() //ì •ì§€í•©ë‹ˆë‹¤.
+	void pause() //Á¤ÁöÇÕ´Ï´Ù.
 	{
 		music.pause();
 	}
-	void stop() //ì¤‘ë‹¨í•©ë‹ˆë‹¤.
+	void stop() //Áß´ÜÇÕ´Ï´Ù.
 	{
 		music.stop();
 	}
 public:
-	bool is_playing() const //ì¬ìƒì—¬ë¶€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤.
+	bool is_playing() const //Àç»ı¿©ºÎ¸¦ È®ÀÎÇÕ´Ï´Ù.
 	{
 		return music.getStatus() == sf::Music::Status::Playing;
 	}
-	bool is_paused() const //ì •ì§€ì—¬ë¶€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤.
+	bool is_paused() const //Á¤Áö¿©ºÎ¸¦ È®ÀÎÇÕ´Ï´Ù.
 	{
 		return music.getStatus() == sf::Music::Status::Paused;
 	}
-	bool is_stopped() const //ì¤‘ë‹¨ì—¬ë¶€ë¥¼ í™•ì¸í•©ë‹ˆë‹¤.
+	bool is_stopped() const //Áß´Ü¿©ºÎ¸¦ È®ÀÎÇÕ´Ï´Ù.
 	{
 		return music.getStatus() == sf::Music::Status::Stopped;
 	}
