@@ -2,6 +2,6 @@ import console
 
 func main(args : string[])
 {
-	console::putline("hello world");
-	console::pause();	
+    console::putline("hello world");
+    console::pause();	
 }

@@ -3,27 +3,27 @@ import gui
 
 func main()
 {
-	mut window : Window
+    mut window : gui::Window
 
-	mut old_pos : point
+    mut old_pos : Point
 
-	mut lines : Vector<ThinLine>
+    mut lines : Vector<gui::ThinLine>
 
-	window.on_paint = $ {
-		window.clear()
-		window.add_drawables(lines)
-		window.display()
-	}
+    window.on_paint = $ {
+	window.clear()
+	window.add_drawables(lines)
+	window.display()
+    }
 	
-	window.on_mouse_move = $(pos : point) {
-
-		if(window.is_left_button_down())
-		{
-			lines.push_back(ThinLine(old_pos, pos))
-			window.paint()
-		}
-		old_pos = pos
+    window.on_mouse_move = $(pos : Point) {
+	if(window.is_left_button_down())
+	{
+	    lines.push_back(gui::ThinLine(old_pos, pos))
+	    window.paint()
 	}
 
-	window.run()
+	old_pos = pos
+    }
+
+    window.run()
 }
